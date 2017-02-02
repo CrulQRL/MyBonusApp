@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,6 +24,7 @@ public class HitFragment extends Fragment {
     TextView viewsTV;
     TextView likesTV;
     TextView favoritesTV;
+    Button saveImageButton;
 
     private String webformatURL;
     private String user;
@@ -81,6 +83,12 @@ public class HitFragment extends Fragment {
         viewsTV = (TextView) view.findViewById(R.id.viewsTV);
         likesTV = (TextView) view.findViewById(R.id.likesTV);
         favoritesTV = (TextView) view.findViewById(R.id.favoritesTV);
+        saveImageButton = (Button) view.findViewById(R.id.saveImageButton);
+
+        int widthScreen = getScreenWidth();
+        int newButtonWidth = widthScreen/3;
+        saveImageButton.getLayoutParams().width = newButtonWidth + 30;
+        imageURLIV.requestLayout();
 
         userTV.setText(user);
         tagsTV.setText(tags);
@@ -91,6 +99,7 @@ public class HitFragment extends Fragment {
         //imageURLIV.getLayoutParams().height = heightImage;
         //imageURLIV.requestLayout();
 
+
         /**
         Picasso.with(getActivity())
                 .load(webformatURL)
@@ -98,12 +107,23 @@ public class HitFragment extends Fragment {
                 .error(R.mipmap.ic_launcher)
                 .into(imageURLIV);
          **/
-        int widthScreen = getScreenWidth();
-        Glide.with(getActivity())
-                .load(webformatURL)
-                //.fitCenter()
-                .override(widthScreen,widthScreen)
-                .into(imageURLIV);
+
+
+        if(webformatURL != null && !webformatURL.equals("")) {
+            Glide.with(getActivity())
+                    .load(webformatURL)
+                    //.fitCenter()
+                    .override(widthScreen, widthScreen)
+                    .into(imageURLIV);
+        }
+
+        if(userImageURL != null && !userImageURL.equals("")) {
+            Glide.with(getActivity())
+                    .load(userImageURL)
+                    .dontAnimate()
+                    //.fitCenter()
+                    .into(userIV);
+        }
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,6 +141,8 @@ public class HitFragment extends Fragment {
     public int getScreenWidth() {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
+
+
 
 
 
