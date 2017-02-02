@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blackLight"
+    >
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:textSize="45dp"
+        android:textColor="@color/colorLight"
+        android:id="@+id/helloTV"
+        android:textAlignment="center"
+        android:text="Hello ini fragment"
+        android:layout_alignParentTop="true"
+        />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/helloTV"
+        android:id="@+id/imageURLTV"
+        />
+
+
+
+
+</RelativeLayout>

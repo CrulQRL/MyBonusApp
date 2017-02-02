@@ -1,19 +1,20 @@
 package com.faqrulans.mybonusapp;
 
-import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
-import android.media.Image;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,13 +28,16 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
     private Context context;
     private FragmentManager fragmentManager;
     private LayoutInflater inflater;
+    private AppCompatActivity activity;
+
 
     private List<Hit> arsHitLeft;
     private List<Hit> arsHitRight;
 
-    public RecyclerViewAdapt(Context context, List<Hit> arsHit, FragmentManager fragmentManager){
-        this.context = context;
-        this.fragmentManager = fragmentManager;
+    public RecyclerViewAdapt(List<Hit> arsHit,AppCompatActivity activity){
+        this.context = context = activity.getApplicationContext();
+        this.fragmentManager = activity.getSupportFragmentManager();
+        this.activity = activity;
         inflater = LayoutInflater.from(context);
         setArrayHit(arsHit);
 
@@ -42,6 +46,13 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.row_image,parent,false);
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                ScreenWidth()/2);
+
+        view.findViewById(R.id.rowImageLL).setLayoutParams(lp);
+
+
         MyViewHolder myViewHolder = new MyViewHolder(view);
         return myViewHolder;
     }
@@ -60,6 +71,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
         holder.hitLeft = currentLeft;
         holder.hitRight = currentRight;
 
+        /**
         Picasso.with(context)
                 .load(url1)
                 .placeholder(R.mipmap.ic_launcher)
@@ -71,7 +83,19 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
                 .placeholder(R.mipmap.ic_launcher)
                 .error(R.mipmap.ic_launcher)
                 .into(holder.imgRight);
+        **/
 
+        Glide
+                .with(context)
+                .load(url1)
+                .centerCrop()
+                .into(holder.imgLeft);
+
+        Glide
+                .with(context)
+                .load(url2)
+                .centerCrop()
+                .into(holder.imgRight);
 
     }
 
@@ -97,6 +121,30 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
         return arsHitLeft.size();
     }
 
+    /**
+    public void CloseFragment(){
+
+        if(fragmentManager.getBackStackEntryCount() == 1){
+            fragmentManager.popBackStack();
+        }
+
+    }**/
+
+    private void HideKeyboard(){
+
+        InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
+
+    }
+
+    private int ScreenWidth(){
+        Display display = activity.getWindowManager().getDefaultDisplay();
+        int stageWidth = display.getWidth();
+        return stageWidth;
+    }
+
+
+
     class MyViewHolder extends RecyclerView.ViewHolder{
 
 
@@ -117,34 +165,91 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             imgLeft.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    activity.findViewById(R.id.action_search).setVisibility(View.INVISIBLE);
                     ShowDialogLeft();
                 }
             });
-
             imgRight.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    activity.findViewById(R.id.action_search).setVisibility(View.INVISIBLE);
                     ShowDialogRight();
                 }
             });
 
 
-
-
         }
 
         private void ShowDialogLeft(){
-            FragmentManager fm = fragmentManager;
-            ImageFragmentDialog imageFragmentDialog = ImageFragmentDialog.newInstance(hitLeft.getWebformatURL(), hitLeft.getUser(), hitLeft.getUserImageURL() ,hitLeft.getTags(), hitLeft.getViews(), hitLeft.getLikes(), hitLeft.getFavorites());
-            imageFragmentDialog.show(fm, "fragment_image_fragment_dialog");
+            //FragmentManager fm = fragmentManager;
+
+            HitFragment hitFragment = HitFragment.newInstance(hitLeft.getWebformatURL(), hitLeft.getUser(), hitLeft.getUserImageURL() ,hitLeft.getTags(), hitLeft.getViews(), hitLeft.getLikes(), hitLeft.getFavorites());
+            //hitFragment.show(fm, "fragment_hit");
+
+            //FragmentTransaction ft = fragmentManager.beginTransaction();
+            //ft.show(hitFragment);
+            //ft.commit();
+            //Log.d("lol","Masuk...");
+
+            //fragmentManager.beginTransaction()
+             //       .setCustomAnimations(R.anim.fade_in,R.anim.fade_out)
+             //       .show(hitFragment)
+             //       .commit();
+
+
+
+           // FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            //fragmentTransaction.add(R.id.activity_main, hitFragment, "HELLO");
+            //fragmentTransaction.commit();
+            //Log.d("lol","Masuk...");
+
+            if(fragmentManager.getBackStackEntryCount() == 0) {
+
+                FragmentTransaction ft = fragmentManager.beginTransaction();
+                ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
+                ft.replace(R.id.containerFragment, hitFragment);
+                ft.addToBackStack(null);
+                ft.commit();
+
+            }else if(fragmentManager.getBackStackEntryCount() == 1){
+                fragmentManager.popBackStack();
+            }
+
         }
 
         private void ShowDialogRight(){
-            FragmentManager fm = fragmentManager;
-            ImageFragmentDialog imageFragmentDialog = ImageFragmentDialog.newInstance(hitRight.getWebformatURL(), hitRight.getUser(), hitRight.getUserImageURL() ,hitRight.getTags(), hitRight.getViews(), hitRight.getLikes(), hitRight.getFavorites());
-            imageFragmentDialog.show(fm, "fragment_image_fragment_dialog");
+            //FragmentManager fm = fragmentManager;
+            Fragment imageFragmentDialog = HitFragment.newInstance(hitRight.getWebformatURL(), hitRight.getUser(), hitRight.getUserImageURL() ,hitRight.getTags(), hitRight.getViews(), hitRight.getLikes(), hitRight.getFavorites());
+            //imageFragmentDialog.show(fm, "fragment_hit");
+            //FragmentTransaction ft = fragmentManager.beginTransaction();
+            //ft.show(imageFragmentDialog);
+            //ft.commit();
+
+            //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            //fragmentTransaction.add(R.id.activity_main, imageFragmentDialog, "HELLO");
+            //fragmentTransaction.commit();
+            //Log.d("lol","Masuk...");
+
+            if(fragmentManager.getBackStackEntryCount() == 0) {
+
+                FragmentTransaction ft = fragmentManager.beginTransaction();
+                ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
+                ft.replace(R.id.containerFragment, imageFragmentDialog);
+                ft.addToBackStack(null);
+                ft.commit();
+
+            }else if(fragmentManager.getBackStackEntryCount() == 1){
+                fragmentManager.popBackStack();
+            }
+
         }
 
     }
+
+
+
+
+
+
 
 }

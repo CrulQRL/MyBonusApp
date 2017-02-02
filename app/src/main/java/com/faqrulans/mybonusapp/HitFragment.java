@@ -1,16 +1,18 @@
 package com.faqrulans.mybonusapp;
 
+import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 
-public class ImageFragmentDialog extends DialogFragment {
+public class HitFragment extends Fragment {
 
     ImageView imageURLIV;
     private String webformatURL;
@@ -21,9 +23,9 @@ public class ImageFragmentDialog extends DialogFragment {
     private String likes;
     private String favorites;
 
-    public static ImageFragmentDialog newInstance(String webformatURL, String user, String userImageURL, String tags, String views, String likes, String favorites){
+    public static HitFragment newInstance(String webformatURL, String user, String userImageURL, String tags, String views, String likes, String favorites){
 
-        ImageFragmentDialog myDialogFragment = new ImageFragmentDialog();
+        HitFragment myDialogFragment = new HitFragment();
         Bundle args = new Bundle();
         args.putString("param1",webformatURL);
         args.putString("param2",user);
@@ -55,19 +57,44 @@ public class ImageFragmentDialog extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_image_fragment_dialog, container, false);
+        View view = inflater.inflate(R.layout.fragment_hit, container, false);
+
 
         imageURLIV = (ImageView) view.findViewById(R.id.imageURLTV);
-        getDialog().setTitle("Details");
+        //getDialog().setTitle("Details");
 
+        /**
         Picasso.with(getActivity())
                 .load(webformatURL)
                 .placeholder(R.mipmap.ic_launcher)
                 .error(R.mipmap.ic_launcher)
                 .into(imageURLIV);
+         **/
+
+        Glide.with(getActivity())
+                .load(webformatURL)
+                .fitCenter()
+                .into(imageURLIV);
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                aaa();
+            }
+        });
 
         return  view;
     }
+
+    public void aaa(){
+        Log.d("lol","masuk aaa..");
+    }
+
+    public int getScreenWidth1() {
+        return Resources.getSystem().getDisplayMetrics().widthPixels;
+    }
+
+
 
 
 }

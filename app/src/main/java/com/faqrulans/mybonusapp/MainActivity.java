@@ -1,14 +1,18 @@
 package com.faqrulans.mybonusapp;
 
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 
@@ -24,6 +28,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    ProgressBar loadingPG;
+    MenuItem searchItem;
     RecyclerView recyclerView;
     RecyclerViewAdapt recyclerViewAdapt;
     ArrayList<Hit> arsHit ;
@@ -37,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         InitVar();
+        loadingPG.setProgress(0);
+        loadingPG.setVisibility(View.VISIBLE);
+        StartConnection("flower red");
 
     }
 
@@ -46,14 +55,17 @@ public class MainActivity extends AppCompatActivity {
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.reload_button, menu);
-        MenuItem item = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView)item.getActionView();
+        searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView)searchItem.getActionView();
 
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
 
+                loadingPG.bringToFront();
+                loadingPG.setProgress(0);
+                loadingPG.setVisibility(View.VISIBLE);
                 StartConnection(query);
                 return false;
             }
@@ -83,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void StartConnection(String query){
 
+
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET
                 ,frontURL + query + backURL ,
                 null,
@@ -98,7 +111,8 @@ public class MainActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(),"Connection Error...",Toast.LENGTH_LONG).show();
+                        loadingPG.setVisibility(View.GONE);
+                        Toast.makeText(getApplicationContext(),"Connection Error..., Please Try Again",Toast.LENGTH_LONG).show();
                     }
                 }
 
@@ -127,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
                 String user = "";
                 String webFormatURL = "";
                 String previewURL = "";
-
                 for (int i = 0; i < jsonArray.length(); i++) {
 
                     favorites = jsonArray.getJSONObject(i).getString("favorites");
@@ -143,11 +156,13 @@ public class MainActivity extends AppCompatActivity {
                     arsHit.add(hit);
 
                 }
-
-                recyclerViewAdapt = new RecyclerViewAdapt(getApplicationContext(), arsHit, getSupportFragmentManager());
+                loadingPG.setVisibility(View.GONE);
+                MenuItemCompat.collapseActionView(searchItem);
+                recyclerViewAdapt = new RecyclerViewAdapt(arsHit, this);
                 recyclerView.setAdapter(recyclerViewAdapt);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
             }else{
+                loadingPG.setVisibility(View.GONE);
                 Toast.makeText(getApplicationContext(),"Query Error...", Toast.LENGTH_LONG).show();
             }
 
@@ -159,14 +174,22 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void InitVar(){
+        loadingPG = (ProgressBar) findViewById(R.id.loadingPG);
         recyclerView = (RecyclerView) findViewById(R.id.imageRV);
         arsHit = new ArrayList<>();
         frontURL = "https://pixabay.com/api/?key=4403161-ec08857d06dd86d0b4023a0e8&q=";
         backURL = "&image_type=photo&pretty=true";
     }
 
+    @Override
+    public void onBackPressed() {
 
-    public void Coba(){
-
+        if(getSupportFragmentManager().getBackStackEntryCount() == 1) {
+            getSupportFragmentManager().popBackStack();
+            this.findViewById(R.id.action_search).setVisibility(View.VISIBLE);
+        }else {
+            super.onBackPressed();
+        }
     }
+
 }
