@@ -85,16 +85,18 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
                 .into(holder.imgRight);
         **/
 
+        int screenWidth = ScreenWidth();
+
         Glide
                 .with(context)
                 .load(url1)
-                .centerCrop()
+                .override(screenWidth/2,screenWidth/2)
                 .into(holder.imgLeft);
 
         Glide
                 .with(context)
                 .load(url2)
-                .centerCrop()
+                .override(screenWidth/2,screenWidth/2)
                 .into(holder.imgRight);
 
     }
@@ -120,15 +122,6 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
     public int getItemCount() {
         return arsHitLeft.size();
     }
-
-    /**
-    public void CloseFragment(){
-
-        if(fragmentManager.getBackStackEntryCount() == 1){
-            fragmentManager.popBackStack();
-        }
-
-    }**/
 
     private void HideKeyboard(){
 
@@ -183,7 +176,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
         private void ShowDialogLeft(){
             //FragmentManager fm = fragmentManager;
 
-            HitFragment hitFragment = HitFragment.newInstance(hitLeft.getWebformatURL(), hitLeft.getUser(), hitLeft.getUserImageURL() ,hitLeft.getTags(), hitLeft.getViews(), hitLeft.getLikes(), hitLeft.getFavorites());
+            HitFragment hitFragment = HitFragment.newInstance(hitLeft.getWebformatURL(), hitLeft.getUser(), hitLeft.getUserImageURL() ,hitLeft.getTags(), hitLeft.getViews(), hitLeft.getLikes(), hitLeft.getFavorites(), ScreenWidth());
             //hitFragment.show(fm, "fragment_hit");
 
             //FragmentTransaction ft = fragmentManager.beginTransaction();
@@ -219,7 +212,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
         private void ShowDialogRight(){
             //FragmentManager fm = fragmentManager;
-            Fragment imageFragmentDialog = HitFragment.newInstance(hitRight.getWebformatURL(), hitRight.getUser(), hitRight.getUserImageURL() ,hitRight.getTags(), hitRight.getViews(), hitRight.getLikes(), hitRight.getFavorites());
+            Fragment imageFragmentDialog = HitFragment.newInstance(hitRight.getWebformatURL(), hitRight.getUser(), hitRight.getUserImageURL() ,hitRight.getTags(), hitRight.getViews(), hitRight.getLikes(), hitRight.getFavorites(), ScreenWidth());
             //imageFragmentDialog.show(fm, "fragment_hit");
             //FragmentTransaction ft = fragmentManager.beginTransaction();
             //ft.show(imageFragmentDialog);

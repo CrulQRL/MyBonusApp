@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
@@ -15,6 +16,14 @@ import com.bumptech.glide.Glide;
 public class HitFragment extends Fragment {
 
     ImageView imageURLIV;
+
+    ImageView userIV;
+    TextView userTV;
+    TextView tagsTV;
+    TextView viewsTV;
+    TextView likesTV;
+    TextView favoritesTV;
+
     private String webformatURL;
     private String user;
     private String userImageURL;
@@ -22,8 +31,9 @@ public class HitFragment extends Fragment {
     private String views;
     private String likes;
     private String favorites;
+    private  int heightImage;
 
-    public static HitFragment newInstance(String webformatURL, String user, String userImageURL, String tags, String views, String likes, String favorites){
+    public static HitFragment newInstance(String webformatURL, String user, String userImageURL, String tags, String views, String likes, String favorites,int heightImage){
 
         HitFragment myDialogFragment = new HitFragment();
         Bundle args = new Bundle();
@@ -33,7 +43,8 @@ public class HitFragment extends Fragment {
         args.putString("param4",tags);
         args.putString("param5",views);
         args.putString("param6",likes);
-        args.putString("param6",favorites);
+        args.putString("param7",favorites);
+        args.putInt("param8",heightImage);
 
         myDialogFragment.setArguments(args);
         return myDialogFragment;
@@ -50,6 +61,8 @@ public class HitFragment extends Fragment {
             views = getArguments().getString("param5");
             likes = getArguments().getString("param6");
             favorites = getArguments().getString("param7");
+            heightImage = getArguments().getInt("param8");
+
         }
     }
 
@@ -61,7 +74,22 @@ public class HitFragment extends Fragment {
 
 
         imageURLIV = (ImageView) view.findViewById(R.id.imageURLTV);
-        //getDialog().setTitle("Details");
+
+        userIV = (ImageView) view.findViewById(R.id.userIV);
+        userTV = (TextView) view.findViewById(R.id.userTV);
+        tagsTV = (TextView) view.findViewById(R.id.tagsTV);
+        viewsTV = (TextView) view.findViewById(R.id.viewsTV);
+        likesTV = (TextView) view.findViewById(R.id.likesTV);
+        favoritesTV = (TextView) view.findViewById(R.id.favoritesTV);
+
+        userTV.setText(user);
+        tagsTV.setText(tags);
+        viewsTV.setText(views);
+        likesTV.setText(likes);
+        favoritesTV.setText(favorites);
+
+        //imageURLIV.getLayoutParams().height = heightImage;
+        //imageURLIV.requestLayout();
 
         /**
         Picasso.with(getActivity())
@@ -70,27 +98,27 @@ public class HitFragment extends Fragment {
                 .error(R.mipmap.ic_launcher)
                 .into(imageURLIV);
          **/
-
+        int widthScreen = getScreenWidth();
         Glide.with(getActivity())
                 .load(webformatURL)
-                .fitCenter()
+                //.fitCenter()
+                .override(widthScreen,widthScreen)
                 .into(imageURLIV);
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                aaa();
+                //Dummy buat fragment
             }
         });
 
         return  view;
     }
 
-    public void aaa(){
-        Log.d("lol","masuk aaa..");
-    }
 
-    public int getScreenWidth1() {
+
+
+    public int getScreenWidth() {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
