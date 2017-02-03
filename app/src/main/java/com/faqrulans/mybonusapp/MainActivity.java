@@ -1,5 +1,6 @@
 package com.faqrulans.mybonusapp;
 
+import android.graphics.drawable.Drawable;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,13 +27,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements HitFragment.OnSaveButtonClickedListener {
 
     ProgressBar loadingPG;
     MenuItem searchItem;
     RecyclerView recyclerView;
     RecyclerViewAdapt recyclerViewAdapt;
     ArrayList<Hit> arsHit ;
+    ArrayList<Drawable> savedImages;
     String frontURL;
     String backURL;
 
@@ -177,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
         loadingPG = (ProgressBar) findViewById(R.id.loadingPG);
         recyclerView = (RecyclerView) findViewById(R.id.imageRV);
         arsHit = new ArrayList<>();
+        savedImages = new ArrayList<>();
         frontURL = "https://pixabay.com/api/?key=4403161-ec08857d06dd86d0b4023a0e8&q=";
         backURL = "&image_type=photo&pretty=true";
     }
@@ -192,4 +195,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void OnSaveButtonClicked(Drawable imageSaved) {
+        savedImages.add(imageSaved);
+    }
 }

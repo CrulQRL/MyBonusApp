@@ -7,6 +7,7 @@
     android:weightSum="5"
     >
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -44,16 +45,33 @@
         android:background="#ffffff"
         />
 
-
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3.3"
+        >
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_margin="4dp"
-            android:layout_weight="3.3"
             android:id="@+id/imageURLTV"
             />
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:id="@+id/loadingImagePB"
+            android:max="100"
+            android:indeterminate="true"
+            android:visibility="visible"
+            />
+
+    </RelativeLayout>
+
 
     <View
         android:layout_height="2dp"

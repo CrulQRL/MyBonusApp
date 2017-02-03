@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -174,27 +175,10 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
         }
 
         private void ShowDialogLeft(){
-            //FragmentManager fm = fragmentManager;
 
-            HitFragment hitFragment = HitFragment.newInstance(hitLeft.getWebformatURL(), hitLeft.getUser(), hitLeft.getUserImageURL() ,hitLeft.getTags(), hitLeft.getViews(), hitLeft.getLikes(), hitLeft.getFavorites(), ScreenWidth());
-            //hitFragment.show(fm, "fragment_hit");
+            //HitFragment hitFragment = HitFragment.newInstance(hitLeft.getWebformatURL(), hitLeft.getUser(), hitLeft.getUserImageURL() ,hitLeft.getTags(), hitLeft.getViews(), hitLeft.getLikes(), hitLeft.getFavorites(), ScreenWidth());
+            HitFragment hitFragment = HitFragment.newInstance(hitLeft);
 
-            //FragmentTransaction ft = fragmentManager.beginTransaction();
-            //ft.show(hitFragment);
-            //ft.commit();
-            //Log.d("lol","Masuk...");
-
-            //fragmentManager.beginTransaction()
-             //       .setCustomAnimations(R.anim.fade_in,R.anim.fade_out)
-             //       .show(hitFragment)
-             //       .commit();
-
-
-
-           // FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            //fragmentTransaction.add(R.id.activity_main, hitFragment, "HELLO");
-            //fragmentTransaction.commit();
-            //Log.d("lol","Masuk...");
 
             if(fragmentManager.getBackStackEntryCount() == 0) {
 
@@ -211,23 +195,15 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
         }
 
         private void ShowDialogRight(){
-            //FragmentManager fm = fragmentManager;
-            Fragment imageFragmentDialog = HitFragment.newInstance(hitRight.getWebformatURL(), hitRight.getUser(), hitRight.getUserImageURL() ,hitRight.getTags(), hitRight.getViews(), hitRight.getLikes(), hitRight.getFavorites(), ScreenWidth());
-            //imageFragmentDialog.show(fm, "fragment_hit");
-            //FragmentTransaction ft = fragmentManager.beginTransaction();
-            //ft.show(imageFragmentDialog);
-            //ft.commit();
+            //Fragment imageFragmentDialog = HitFragment.newInstance(hitRight.getWebformatURL(), hitRight.getUser(), hitRight.getUserImageURL() ,hitRight.getTags(), hitRight.getViews(), hitRight.getLikes(), hitRight.getFavorites(), ScreenWidth());
+            HitFragment hitFragment = HitFragment.newInstance(hitRight);
 
-            //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            //fragmentTransaction.add(R.id.activity_main, imageFragmentDialog, "HELLO");
-            //fragmentTransaction.commit();
-            //Log.d("lol","Masuk...");
 
             if(fragmentManager.getBackStackEntryCount() == 0) {
 
                 FragmentTransaction ft = fragmentManager.beginTransaction();
                 ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
-                ft.replace(R.id.containerFragment, imageFragmentDialog);
+                ft.replace(R.id.containerFragment, hitFragment);
                 ft.addToBackStack(null);
                 ft.commit();
 
