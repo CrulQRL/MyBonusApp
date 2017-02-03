@@ -1,12 +1,10 @@
 package com.faqrulans.mybonusapp;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +12,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
@@ -36,6 +33,7 @@ public class HitFragment extends Fragment {
 
     private OnSaveButtonClickedListener mListener;
 
+    private Hit hit;
     private String webformatURL;
     private String user;
     private String userImageURL;
@@ -49,13 +47,14 @@ public class HitFragment extends Fragment {
 
         HitFragment myDialogFragment = new HitFragment();
         Bundle args = new Bundle();
-        args.putString("param1",hit.getWebformatURL());
-        args.putString("param2",hit.getUser());
-        args.putString("param3",hit.getUserImageURL());
-        args.putString("param4",hit.getTags());
-        args.putString("param5",hit.getViews());
-        args.putString("param6",hit.getLikes());
-        args.putString("param7",hit.getFavorites());
+        args.putSerializable("param1", hit);
+        args.putString("param2",hit.getWebformatURL());
+        args.putString("param3",hit.getUser());
+        args.putString("param4",hit.getUserImageURL());
+        args.putString("param5",hit.getTags());
+        args.putString("param6",hit.getViews());
+        args.putString("param7",hit.getLikes());
+        args.putString("param8",hit.getFavorites());
 
         myDialogFragment.setArguments(args);
         return myDialogFragment;
@@ -65,13 +64,14 @@ public class HitFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            webformatURL = getArguments().getString("param1");
-            user = getArguments().getString("param2");
-            userImageURL = getArguments().getString("param3");
-            tags = getArguments().getString("param4");
-            views = getArguments().getString("param5");
-            likes = getArguments().getString("param6");
-            favorites = getArguments().getString("param7");
+            hit = (Hit) getArguments().getSerializable("param1");
+            webformatURL = getArguments().getString("param2");
+            user = getArguments().getString("param3");
+            userImageURL = getArguments().getString("param4");
+            tags = getArguments().getString("param5");
+            views = getArguments().getString("param6");
+            likes = getArguments().getString("param7");
+            favorites = getArguments().getString("param8");
 
         }
     }
@@ -161,15 +161,16 @@ public class HitFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //Toast.makeText(getContext(),"Save button clicked..", Toast.LENGTH_LONG).show();
-                onSaveButtonPressed(imageURLIV.getDrawable());
+                onSaveButtonPressed(imageURLIV.getDrawable(), userIV.getDrawable());
             }
         });
 
     }
 
-    public void onSaveButtonPressed(Drawable savedImage) {
+    public void onSaveButtonPressed(Drawable savedImageURL, Drawable savedUserImage) {
         if (mListener != null) {
-            mListener.OnSaveButtonClicked(savedImage);
+            SavedHitInformation savedHitInformation = new SavedHitInformation(hit, savedImageURL, savedUserImage);
+            mListener.OnSaveButtonClicked(savedHitInformation);
         }
     }
 
@@ -196,7 +197,7 @@ public class HitFragment extends Fragment {
     }
 
     public interface OnSaveButtonClickedListener {
-        public void OnSaveButtonClicked(Drawable imageSaved);
+        public void OnSaveButtonClicked(SavedHitInformation savedHitInformation);
     }
 
 

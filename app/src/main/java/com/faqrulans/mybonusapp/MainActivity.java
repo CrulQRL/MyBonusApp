@@ -1,14 +1,11 @@
 package com.faqrulans.mybonusapp;
 
-import android.graphics.drawable.Drawable;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
     RecyclerView recyclerView;
     RecyclerViewAdapt recyclerViewAdapt;
     ArrayList<Hit> arsHit ;
-    ArrayList<Drawable> savedImages;
+    ArrayList<SavedHitInformation> savedHitInformations;
     String frontURL;
     String backURL;
 
@@ -179,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
         loadingPG = (ProgressBar) findViewById(R.id.loadingPG);
         recyclerView = (RecyclerView) findViewById(R.id.imageRV);
         arsHit = new ArrayList<>();
-        savedImages = new ArrayList<>();
+        savedHitInformations = new ArrayList<>();
         frontURL = "https://pixabay.com/api/?key=4403161-ec08857d06dd86d0b4023a0e8&q=";
         backURL = "&image_type=photo&pretty=true";
     }
@@ -195,8 +192,10 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
         }
     }
 
+
     @Override
-    public void OnSaveButtonClicked(Drawable imageSaved) {
-        savedImages.add(imageSaved);
+    public void OnSaveButtonClicked(SavedHitInformation savedHitInformation) {
+        savedHitInformations.add(savedHitInformation);
+        //Toast.makeText(getApplicationContext(), this.savedHitInformations.size() + " Saved Image", Toast.LENGTH_LONG).show();
     }
 }

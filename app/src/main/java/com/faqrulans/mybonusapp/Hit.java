@@ -1,10 +1,12 @@
 package com.faqrulans.mybonusapp;
 
+import java.io.Serializable;
+
 /**
  * Created by faqrulan on 1/30/17.
  */
 
-public class Hit {
+public class Hit implements Serializable {
 
     private String webformatURL;
     private String previewURL;
