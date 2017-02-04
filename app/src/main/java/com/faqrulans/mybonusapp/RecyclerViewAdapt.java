@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -245,6 +246,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
         private void hideSearchButton(){
             if(activity.findViewById(R.id.action_search) != null){
+                HideKeyboard();
                 activity.findViewById(R.id.action_search).setVisibility(View.INVISIBLE);
             }
         }
@@ -268,6 +270,13 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             ft.replace(R.id.containerFragment, hitFragment);
             ft.addToBackStack(null);
             ft.commit();
+
+        }
+
+        private void HideKeyboard(){
+
+            InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
 
         }
 

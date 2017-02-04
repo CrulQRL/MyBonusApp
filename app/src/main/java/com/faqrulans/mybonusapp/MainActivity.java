@@ -1,5 +1,6 @@
 package com.faqrulans.mybonusapp;
 
+import android.content.Context;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -14,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -273,4 +275,6 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
         savedHitInformations.add(savedHitInformation);
         //Toast.makeText(getApplicationContext(), this.savedHitInformations.size() + " Saved Image", Toast.LENGTH_LONG).show();
     }
+
+
 }
