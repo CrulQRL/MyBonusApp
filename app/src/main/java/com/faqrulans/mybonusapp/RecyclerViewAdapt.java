@@ -1,5 +1,6 @@
 package com.faqrulans.mybonusapp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.app.Fragment;
@@ -7,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,21 +34,40 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
     private Context context;
     private FragmentManager fragmentManager;
     private LayoutInflater inflater;
-    private AppCompatActivity activity;
+    private Activity activity;
     private Bitmap previewImageBitmap;
 
 
-    private List<Hit> arsHitLeft;
-    private List<Hit> arsHitRight;
+    private ArrayList<SavedHitInformation> savedHitInformations ;
+    private List arsHitLeft;
+    private List arsHitRight;
 
-    public RecyclerViewAdapt(List<Hit> arsHit,AppCompatActivity activity){
+    public RecyclerViewAdapt(List<Hit> arsHit,Activity activity, FragmentManager fragmentManager){
         this.context = activity.getApplicationContext();
-        this.fragmentManager = activity.getSupportFragmentManager();
+        this.fragmentManager = fragmentManager;
         this.activity = activity;
         inflater = LayoutInflater.from(context);
         setArrayHit(arsHit);
-
     }
+
+    public RecyclerViewAdapt(Activity activity, FragmentManager fragmentManager, ArrayList<SavedHitInformation> savedHitInformations){
+        this.context = activity.getApplicationContext();
+        this.fragmentManager = fragmentManager;
+        this.activity = activity;
+        this.savedHitInformations = savedHitInformations;
+        Log.d("lol","panjang savedHitInformation : " + savedHitInformations.size());
+        inflater = LayoutInflater.from(context);
+        setArrayHit(savedHitInformations);
+    }
+
+    /**
+    public RecyclerViewAdapt(List<Hit> arsHit,Context context){
+        this.context = context;
+        //this.fragmentManager = context.get;
+        //this.activity = activity;
+        inflater = LayoutInflater.from(context);
+        setArrayHit(arsHit);
+    }**/
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -69,77 +90,101 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
     }
 
     private void PutImageToViewHolder(final MyViewHolder holder, int position){
-        Hit currentLeft = arsHitLeft.get(position);
-        Hit currentRight = arsHitRight.get(position);
 
 
-        String url1 = currentLeft.getPreviewURL();
-        String url2 = currentRight.getPreviewURL();
 
-        holder.hitLeft = currentLeft;
-        holder.hitRight = currentRight;
+        if(savedHitInformations == null){
+            Log.d("lol","Masuk if");
+            Hit currentLeft = (Hit) arsHitLeft.get(position);
+            Hit currentRight = (Hit) arsHitRight.get(position);
+            holder.hitLeft = currentLeft;
+            holder.hitRight = currentRight;
 
-        int screenWidth = ScreenWidth();
+            String url1 = currentLeft.getPreviewURL();
+            String url2 = currentRight.getPreviewURL();
 
-        /**
-         Glide
-         .with(context)
-         .load(url1)
-         .override(screenWidth/2,screenWidth/2)
-         .into(holder.imgLeft);
+            int screenWidth = ScreenWidth();
 
-         Glide
-         .with(context)
-         .load(url2)
-         .override(screenWidth/2,screenWidth/2)
-         .into(holder.imgRight);
-         **/
+            if (url1 != null && !url1.equals("")) {
 
-        if(url1 != null && !url1.equals("")) {
+                Glide.with(context)
+                        .load(url1)
+                        .asBitmap()
+                        .dontAnimate()
+                        .into(new SimpleTarget<Bitmap>(screenWidth / 2, screenWidth / 2) {
+                            @Override
+                            public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
+                                // Do something with bitmap here.
+                                previewImageBitmap = bitmap;
+                                holder.imgLeft.setImageBitmap(bitmap);
+                            }
+                        });
 
-            Glide.with(context)
-                    .load(url1)
-                    .asBitmap()
-                    .dontAnimate()
-                    .into(new SimpleTarget<Bitmap>(screenWidth/2,screenWidth/2) {
-                        @Override
-                        public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
-                            // Do something with bitmap here.
-                            previewImageBitmap = bitmap;
-                            holder.imgLeft.setImageBitmap(bitmap);
-                        }
-                    });
+            }
 
-        }
+            if (url2 != null && !url2.equals("")) {
+                Glide.with(context)
+                        .load(url2)
+                        .asBitmap()
+                        .dontAnimate()
+                        .into(new SimpleTarget<Bitmap>(screenWidth / 2, screenWidth / 2) {
+                            @Override
+                            public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
+                                // Do something with bitmap here.
+                                previewImageBitmap = bitmap;
+                                holder.imgRight.setImageBitmap(bitmap);
+                            }
+                        });
+            }
 
-        if(url2 != null && !url2.equals("")){
-            Glide.with(context)
-                    .load(url2)
-                    .asBitmap()
-                    .dontAnimate()
-                    .into(new SimpleTarget<Bitmap>(screenWidth/2,screenWidth/2) {
-                        @Override
-                        public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
-                            // Do something with bitmap here.
-                            previewImageBitmap = bitmap;
-                            holder.imgRight.setImageBitmap(bitmap);
-                        }
-                    });
+        }else {
+            Log.d("lol","Masuk else");
+
+            if(position < arsHitLeft.size()){
+                SavedHitInformation currentLeft = (SavedHitInformation) arsHitLeft.get(position);
+                holder.hitLeft = currentLeft.getSavedHit();
+                holder.imgLeft.setImageBitmap(currentLeft.getImagePreview());
+            }
+
+            if(position < arsHitRight.size()) {
+                SavedHitInformation currentRight = (SavedHitInformation) arsHitRight.get(position);
+                holder.hitRight = currentRight.getSavedHit();
+                holder.imgRight.setImageBitmap(currentRight.getImagePreview());
+            }
+
         }
 
     }
 
-    private void setArrayHit(List<Hit> arsHit){
+    private void setArrayHit(List ars){
 
         arsHitLeft = new ArrayList<>();
         arsHitRight = new ArrayList<>();
 
-        for(int i = 0 ; i < arsHit.size() ; i++){
+        if(savedHitInformations == null) {
+            Log.d("lol","Masuk if_V2");
 
-            if(i % 2 == 0){
-                arsHitLeft.add(arsHit.get(i));
-            }else{
-                arsHitRight.add(arsHit.get(i));
+
+            for (int i = 0; i < ars.size(); i++) {
+
+                if (i % 2 == 0) {
+                    arsHitLeft.add(ars.get(i));
+                } else {
+                    arsHitRight.add(ars.get(i));
+                }
+
+            }
+        }else{
+            Log.d("lol","Masuk else_V2");
+
+            for(int i = 0 ; i < savedHitInformations.size(); i++){
+
+                if(i % 2 == 0){
+                    arsHitLeft.add(savedHitInformations.get(i));
+                }else{
+                    arsHitLeft.add(savedHitInformations.get(i));
+                }
+
             }
 
         }
@@ -190,6 +235,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
                     ShowDialogLeft();
                 }
             });
+
             imgRight.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

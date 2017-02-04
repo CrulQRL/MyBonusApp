@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
                 }
                 loadingPG.setVisibility(View.GONE);
                 MenuItemCompat.collapseActionView(searchItem);
-                recyclerViewAdapt = new RecyclerViewAdapt(arsHit, this);
+                recyclerViewAdapt = new RecyclerViewAdapt(arsHit, this,getSupportFragmentManager());
                 recyclerView.setAdapter(recyclerViewAdapt);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
             }else{

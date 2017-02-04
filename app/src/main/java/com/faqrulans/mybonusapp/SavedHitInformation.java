@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+
 /**
  * Created by faqrulan on 2/3/17.
  */
@@ -26,6 +28,22 @@ public class SavedHitInformation implements Parcelable {
         this.userIV = userIV;
     }
 
+    public Bitmap getImagePreview() {
+        return imagePreview;
+    }
+
+    public Bitmap getImageURLIV() {
+        return imageURLIV;
+    }
+
+    public Bitmap getUserIV() {
+        return userIV;
+    }
+
+    public Hit getSavedHit() {
+
+        return savedHit;
+    }
 
     protected SavedHitInformation(Parcel in) {
         savedHit = (Hit) in.readValue(Hit.class.getClassLoader());
