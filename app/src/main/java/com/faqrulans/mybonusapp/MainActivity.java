@@ -189,11 +189,9 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
             SavedImageFragment savedImagePage = SavedImageFragment.newInstance(savedHitInformations);
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
-            ft.replace(R.id.containerFragment, savedImagePage);
+            ft.replace(R.id.containerSavedFragment, savedImagePage);
             ft.addToBackStack(null);
             ft.commit();
-            Toast.makeText(getApplicationContext(),"Saved Page Clicked..", Toast.LENGTH_LONG).show();
-
         }
 
     }
