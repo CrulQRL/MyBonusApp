@@ -1,11 +1,13 @@
 package com.faqrulans.mybonusapp;
 
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -84,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.savedItem:
-
+                ShowSavedImagePage();
                 return true;
 
         }
@@ -179,6 +181,21 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
         savedHitInformations = new ArrayList<>();
         frontURL = "https://pixabay.com/api/?key=4403161-ec08857d06dd86d0b4023a0e8&q=";
         backURL = "&image_type=photo&pretty=true";
+    }
+
+    private void ShowSavedImagePage(){
+
+        if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            SavedImageFragment savedImagePage = SavedImageFragment.newInstance(savedHitInformations);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
+            ft.replace(R.id.containerFragment, savedImagePage);
+            ft.addToBackStack(null);
+            ft.commit();
+            Toast.makeText(getApplicationContext(),"Saved Page Clicked..", Toast.LENGTH_LONG).show();
+
+        }
+
     }
 
     @Override

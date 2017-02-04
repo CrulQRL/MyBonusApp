@@ -2,6 +2,7 @@ package com.faqrulans.mybonusapp;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,10 +13,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 
 
@@ -41,9 +45,12 @@ public class HitFragment extends Fragment {
     private String views;
     private String likes;
     private String favorites;
+    private Bitmap imagePreviewBitmap;
+    private Bitmap imageURLBitmap;
+    private Bitmap imageUserBitmap;
 
 
-    public static HitFragment newInstance(Hit hit){
+    public static HitFragment newInstance(Hit hit, Bitmap previewImageBitmap){
 
         HitFragment myDialogFragment = new HitFragment();
         Bundle args = new Bundle();
@@ -55,6 +62,8 @@ public class HitFragment extends Fragment {
         args.putString("param6",hit.getViews());
         args.putString("param7",hit.getLikes());
         args.putString("param8",hit.getFavorites());
+        args.putParcelable("param9", previewImageBitmap);
+
 
         myDialogFragment.setArguments(args);
         return myDialogFragment;
@@ -72,6 +81,8 @@ public class HitFragment extends Fragment {
             views = getArguments().getString("param6");
             likes = getArguments().getString("param7");
             favorites = getArguments().getString("param8");
+            imagePreviewBitmap = getArguments().getParcelable("param9");
+
 
         }
     }
@@ -116,6 +127,8 @@ public class HitFragment extends Fragment {
     private void StartGLidePrecess(int widthScreen){
 
         if(webformatURL != null && !webformatURL.equals("")) {
+
+            /**
             Glide.with(getActivity())
                     .load(webformatURL)
                     .override(widthScreen, widthScreen)
@@ -132,14 +145,41 @@ public class HitFragment extends Fragment {
                         }
                     })
                     .into(imageURLIV)
-            ;
+            ;**/
+
+            Glide.with(getActivity())
+                    .load(webformatURL)
+                    .asBitmap()
+                    .into(new SimpleTarget<Bitmap>(widthScreen, widthScreen) {
+                        @Override
+                        public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
+                            // Do something with bitmap here.
+                            loadingImagePB.setVisibility(View.GONE);
+                            imageURLBitmap = bitmap;
+                            imageURLIV.setImageBitmap(bitmap);
+                        }
+                    });
         }
 
         if(userImageURL != null && !userImageURL.equals("")) {
+
             Glide.with(getActivity())
                     .load(userImageURL)
                     .dontAnimate()
                     .into(userIV);
+
+            Glide.with(getActivity())
+                    .load(webformatURL)
+                    .asBitmap()
+                    .dontAnimate()
+                    .into(new SimpleTarget<Bitmap>(widthScreen, widthScreen) {
+                        @Override
+                        public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
+                            // Do something with bitmap here.
+                            imageUserBitmap = bitmap;
+                            userIV.setImageBitmap(bitmap);
+                        }
+                    });
         }
 
     }
@@ -160,16 +200,17 @@ public class HitFragment extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Toast.makeText(getContext(),"Save button clicked..", Toast.LENGTH_LONG).show();
-                onSaveButtonPressed(imageURLIV.getDrawable(), userIV.getDrawable());
+                Toast.makeText(getContext(),"Saved", Toast.LENGTH_LONG).show();
+                onSaveButtonPressed(imageURLBitmap, imageUserBitmap);
+
             }
         });
 
     }
 
-    public void onSaveButtonPressed(Drawable savedImageURL, Drawable savedUserImage) {
+    public void onSaveButtonPressed(Bitmap savedImageURL, Bitmap savedUserImage) {
         if (mListener != null) {
-            SavedHitInformation savedHitInformation = new SavedHitInformation(hit, savedImageURL, savedUserImage);
+            SavedHitInformation savedHitInformation = new SavedHitInformation(hit, savedImageURL, imagePreviewBitmap ,savedUserImage);
             mListener.OnSaveButtonClicked(savedHitInformation);
         }
     }

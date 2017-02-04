@@ -1,32 +1,62 @@
 package com.faqrulans.mybonusapp;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by faqrulan on 2/3/17.
  */
 
-public class SavedHitInformation {
+public class SavedHitInformation implements Parcelable {
+
 
     private Hit savedHit;
-    private Drawable imageURLIV;
-    private Drawable userIV;
+    private Bitmap imagePreview;
+    private Bitmap imageURLIV;
+    private Bitmap userIV;
 
-    public SavedHitInformation(Hit savedHit, Drawable imageURLIV, Drawable userIV) {
+
+    public SavedHitInformation(Hit savedHit, Bitmap imageURLIV, Bitmap imagePreview, Bitmap userIV) {
         this.savedHit = savedHit;
+        this.imagePreview = imagePreview;
         this.imageURLIV = imageURLIV;
         this.userIV = userIV;
     }
 
-    public Hit getSavedHit(){
-        return savedHit;
+
+    protected SavedHitInformation(Parcel in) {
+        savedHit = (Hit) in.readValue(Hit.class.getClassLoader());
+        imagePreview = (Bitmap) in.readValue(Bitmap.class.getClassLoader());
+        imageURLIV = (Bitmap) in.readValue(Bitmap.class.getClassLoader());
+        userIV = (Bitmap) in.readValue(Bitmap.class.getClassLoader());
     }
 
-    public Drawable getImageURLIV() {
-        return imageURLIV;
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
-    public Drawable getUserIV() {
-        return userIV;
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(savedHit);
+        dest.writeParcelable(imagePreview,flags);
+        dest.writeParcelable(imageURLIV,flags);
+        dest.writeParcelable(userIV,flags);
     }
+
+    public static final Parcelable.Creator<SavedHitInformation> CREATOR = new Parcelable.Creator<SavedHitInformation>() {
+        @Override
+        public SavedHitInformation createFromParcel(Parcel in) {
+            return new SavedHitInformation(in);
+        }
+
+        @Override
+        public SavedHitInformation[] newArray(int size) {
+            return new SavedHitInformation[size];
+        }
+    };
+
 }

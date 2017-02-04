@@ -1,6 +1,7 @@
 package com.faqrulans.mybonusapp;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -16,6 +17,8 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +33,14 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
     private FragmentManager fragmentManager;
     private LayoutInflater inflater;
     private AppCompatActivity activity;
+    private Bitmap previewImageBitmap;
 
 
     private List<Hit> arsHitLeft;
     private List<Hit> arsHitRight;
 
     public RecyclerViewAdapt(List<Hit> arsHit,AppCompatActivity activity){
-        this.context = context = activity.getApplicationContext();
+        this.context = activity.getApplicationContext();
         this.fragmentManager = activity.getSupportFragmentManager();
         this.activity = activity;
         inflater = LayoutInflater.from(context);
@@ -60,8 +64,11 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
+    public void onBindViewHolder(final MyViewHolder holder, int position) {
+        PutImageToViewHolder(holder, position);
+    }
 
+    private void PutImageToViewHolder(final MyViewHolder holder, int position){
         Hit currentLeft = arsHitLeft.get(position);
         Hit currentRight = arsHitRight.get(position);
 
@@ -72,33 +79,53 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
         holder.hitLeft = currentLeft;
         holder.hitRight = currentRight;
 
-        /**
-        Picasso.with(context)
-                .load(url1)
-                .placeholder(R.mipmap.ic_launcher)
-                .error(R.mipmap.ic_launcher)
-                .into(holder.imgLeft);
-
-        Picasso.with(context)
-                .load(url2)
-                .placeholder(R.mipmap.ic_launcher)
-                .error(R.mipmap.ic_launcher)
-                .into(holder.imgRight);
-        **/
-
         int screenWidth = ScreenWidth();
 
-        Glide
-                .with(context)
-                .load(url1)
-                .override(screenWidth/2,screenWidth/2)
-                .into(holder.imgLeft);
+        /**
+         Glide
+         .with(context)
+         .load(url1)
+         .override(screenWidth/2,screenWidth/2)
+         .into(holder.imgLeft);
 
-        Glide
-                .with(context)
-                .load(url2)
-                .override(screenWidth/2,screenWidth/2)
-                .into(holder.imgRight);
+         Glide
+         .with(context)
+         .load(url2)
+         .override(screenWidth/2,screenWidth/2)
+         .into(holder.imgRight);
+         **/
+
+        if(url1 != null && !url1.equals("")) {
+
+            Glide.with(context)
+                    .load(url1)
+                    .asBitmap()
+                    .dontAnimate()
+                    .into(new SimpleTarget<Bitmap>(screenWidth/2,screenWidth/2) {
+                        @Override
+                        public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
+                            // Do something with bitmap here.
+                            previewImageBitmap = bitmap;
+                            holder.imgLeft.setImageBitmap(bitmap);
+                        }
+                    });
+
+        }
+
+        if(url2 != null && !url2.equals("")){
+            Glide.with(context)
+                    .load(url2)
+                    .asBitmap()
+                    .dontAnimate()
+                    .into(new SimpleTarget<Bitmap>(screenWidth/2,screenWidth/2) {
+                        @Override
+                        public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
+                            // Do something with bitmap here.
+                            previewImageBitmap = bitmap;
+                            holder.imgRight.setImageBitmap(bitmap);
+                        }
+                    });
+        }
 
     }
 
@@ -176,9 +203,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
         private void ShowDialogLeft(){
 
-            //HitFragment hitFragment = HitFragment.newInstance(hitLeft.getWebformatURL(), hitLeft.getUser(), hitLeft.getUserImageURL() ,hitLeft.getTags(), hitLeft.getViews(), hitLeft.getLikes(), hitLeft.getFavorites(), ScreenWidth());
-            HitFragment hitFragment = HitFragment.newInstance(hitLeft);
-
+            HitFragment hitFragment = HitFragment.newInstance(hitLeft, previewImageBitmap);
 
             if(fragmentManager.getBackStackEntryCount() == 0) {
 
@@ -195,9 +220,8 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
         }
 
         private void ShowDialogRight(){
-            //Fragment imageFragmentDialog = HitFragment.newInstance(hitRight.getWebformatURL(), hitRight.getUser(), hitRight.getUserImageURL() ,hitRight.getTags(), hitRight.getViews(), hitRight.getLikes(), hitRight.getFavorites(), ScreenWidth());
-            HitFragment hitFragment = HitFragment.newInstance(hitRight);
 
+            HitFragment hitFragment = HitFragment.newInstance(hitRight, previewImageBitmap);
 
             if(fragmentManager.getBackStackEntryCount() == 0) {
 
