@@ -2,17 +2,21 @@ package com.faqrulans.mybonusapp;
 
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
     ArrayList<SavedHitInformation> savedHitInformations;
     String frontURL;
     String backURL;
+    boolean savedImagePageOpened;
 
 
     @Override
@@ -54,29 +59,45 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.reload_button, menu);
-        searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView)searchItem.getActionView();
+        if(savedImagePageOpened == false) {
+            //getSupportActionBar().setDisplayShowCustomEnabled(true);
 
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
+            getSupportActionBar().setDisplayShowCustomEnabled(false);
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
 
-                loadingPG.bringToFront();
-                loadingPG.setProgress(0);
-                loadingPG.setVisibility(View.VISIBLE);
-                StartConnection(query);
-                return false;
-            }
+            MenuInflater inflater = getMenuInflater();
+            getSupportActionBar().setTitle("MyBonusApp");
+            inflater.inflate(R.menu.reload_button, menu);
+            searchItem = menu.findItem(R.id.action_search);
+            SearchView searchView = (SearchView) searchItem.getActionView();
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
 
-                return false;
-            }
-        });
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+
+                    loadingPG.bringToFront();
+                    loadingPG.setProgress(0);
+                    loadingPG.setVisibility(View.VISIBLE);
+                    StartConnection(query);
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+
+                    return false;
+                }
+            });
+
+        }else{
+            //getSupportActionBar().setDisplayShowCustomEnabled(true);
+            //getActionBar().setTitle("Your Saved Images");
+            //getSupportActionBar().setTitle("Your Saved Images");
+            setCustomActionBar();
+            savedImagePageOpened = false;
+        }
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -186,12 +207,16 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
     private void ShowSavedImagePage(){
 
         if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            savedImagePageOpened = true;
             SavedImageFragment savedImagePage = SavedImageFragment.newInstance(savedHitInformations);
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
             ft.replace(R.id.containerSavedFragment, savedImagePage);
             ft.addToBackStack(null);
             ft.commit();
+            invalidateOptionsMenu();
+        }else{
+            Log.d("lol","wadkakwdaw");
         }
 
     }
@@ -200,13 +225,48 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
     public void onBackPressed() {
 
         if(getSupportFragmentManager().getBackStackEntryCount() == 1) {
+            invalidateOptionsMenu();
             getSupportFragmentManager().popBackStack();
-            this.findViewById(R.id.action_search).setVisibility(View.VISIBLE);
+        }else if(getSupportFragmentManager().getBackStackEntryCount() == 2){
+            getSupportFragmentManager().popBackStack();
         }else {
             super.onBackPressed();
         }
     }
 
+    private void setCustomActionBar(){
+
+        ActionBar mActionBar = getSupportActionBar();
+        //mActionBar.setDisplayShowHomeEnabled(false);
+        mActionBar.setDisplayShowTitleEnabled(false);
+        LayoutInflater mInflater = LayoutInflater.from(this);
+
+        View mCustomView = mInflater.inflate(R.layout.my_action_bar, null);
+        TextView mTitleTextView = (TextView) mCustomView.findViewById(R.id.actionBarTV);
+        mTitleTextView.setText("Your Saved Images");
+
+        ImageButton backIB = (ImageButton) mCustomView.findViewById(R.id.backIB);
+        backIB.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                backButtonClicked();
+            }
+        });
+
+        mActionBar.setCustomView(mCustomView);
+        mActionBar.setDisplayShowCustomEnabled(true);
+
+    }
+
+    private void backButtonClicked(){
+        if(getSupportFragmentManager().getBackStackEntryCount() == 1){
+            invalidateOptionsMenu();
+            getSupportFragmentManager().popBackStack();
+        }else if(getSupportFragmentManager().getBackStackEntryCount() == 2){
+            getSupportFragmentManager().popBackStack();
+        }
+    }
 
     @Override
     public void OnSaveButtonClicked(SavedHitInformation savedHitInformation) {

@@ -3,19 +3,23 @@ package com.faqrulans.mybonusapp;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
@@ -37,7 +41,8 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
     private List arsHitLeft;
     private List arsHitRight;
 
-    public RecyclerViewAdapt(List<Hit> arsHit,Activity activity, FragmentManager fragmentManager){
+
+    public RecyclerViewAdapt(List<Hit> arsHit, Activity activity, FragmentManager fragmentManager){
         this.context = activity.getApplicationContext();
         this.fragmentManager = fragmentManager;
         this.activity = activity;
@@ -94,6 +99,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
         PutImageToViewHolder(holder, position);
     }
 
+
     private void PutImageToViewHolder(final MyViewHolder holder, int position){
 
 
@@ -146,8 +152,8 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
                 holder.hitLeft = currentLeft.getSavedHit();
                 holder.imgLeft.setImageBitmap(currentLeft.getImagePreview());
             }else{
-
-                //holder.imgLeft.setBackground();
+                holder.imgLeft.setBackgroundColor(Color.parseColor("#1A1A1A"));
+                holder.imgLeft.invalidate();
             }
 
             if(position < arsHitRight.size()) {
@@ -155,7 +161,8 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
                 holder.hitRight = currentRight.getSavedHit();
                 holder.imgRight.setImageBitmap(currentRight.getImagePreview());
             }else{
-
+                holder.imgRight.setBackgroundColor(Color.parseColor("#1A1A1A"));
+                holder.imgRight.invalidate();
             }
 
         }
@@ -173,7 +180,6 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             }
 
         }
-
 
     }
 
@@ -201,8 +207,6 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
         return stageWidth;
     }
 
-
-
     class MyViewHolder extends RecyclerView.ViewHolder{
 
 
@@ -223,7 +227,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             imgLeft.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    activity.findViewById(R.id.action_search).setVisibility(View.INVISIBLE);
+                    hideSearchButton();
                     ShowDialogLeft();
                 }
             });
@@ -231,12 +235,18 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             imgRight.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    activity.findViewById(R.id.action_search).setVisibility(View.INVISIBLE);
+                    hideSearchButton();
                     ShowDialogRight();
                 }
             });
 
 
+        }
+
+        private void hideSearchButton(){
+            if(activity.findViewById(R.id.action_search) != null){
+                activity.findViewById(R.id.action_search).setVisibility(View.INVISIBLE);
+            }
         }
 
         private void ShowDialogLeft(){
