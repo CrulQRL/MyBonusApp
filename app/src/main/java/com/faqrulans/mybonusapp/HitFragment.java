@@ -3,9 +3,13 @@ package com.faqrulans.mybonusapp;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +25,9 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 
 public class HitFragment extends Fragment {
@@ -48,6 +55,7 @@ public class HitFragment extends Fragment {
     private Bitmap imagePreviewBitmap;
     private Bitmap imageURLBitmap;
     private Bitmap imageUserBitmap;
+    private SavedHitInformation savedHitInformation;
 
 
     public static HitFragment newInstance(Hit hit, Bitmap previewImageBitmap){
@@ -69,20 +77,37 @@ public class HitFragment extends Fragment {
         return myDialogFragment;
     }
 
+    public static HitFragment newInstace(SavedHitInformation savedHitInformation){
+
+        HitFragment myDialogFragment = new HitFragment();
+        Bundle args = new Bundle();
+
+        args.putParcelable("sHI",savedHitInformation);
+
+        myDialogFragment.setArguments(args);
+        return myDialogFragment;
+
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            hit = (Hit) getArguments().getSerializable("param1");
-            webformatURL = getArguments().getString("param2");
-            user = getArguments().getString("param3");
-            userImageURL = getArguments().getString("param4");
-            tags = getArguments().getString("param5");
-            views = getArguments().getString("param6");
-            likes = getArguments().getString("param7");
-            favorites = getArguments().getString("param8");
-            imagePreviewBitmap = getArguments().getParcelable("param9");
 
+        if (getArguments() != null) {
+
+            if(getArguments().getParcelable("sHI") == null) {
+                hit = (Hit) getArguments().getSerializable("param1");
+                webformatURL = getArguments().getString("param2");
+                user = getArguments().getString("param3");
+                userImageURL = getArguments().getString("param4");
+                tags = getArguments().getString("param5");
+                views = getArguments().getString("param6");
+                likes = getArguments().getString("param7");
+                favorites = getArguments().getString("param8");
+                imagePreviewBitmap = getArguments().getParcelable("param9");
+            }else{
+                savedHitInformation = getArguments().getParcelable("sHI");
+            }
 
         }
     }
@@ -109,16 +134,20 @@ public class HitFragment extends Fragment {
         saveImageButton.getLayoutParams().width = newButtonWidth + 30;
         imageURLIV.requestLayout();
 
-        userTV.setText(user);
-        tagsTV.setText(tags);
-        viewsTV.setText(views);
-        likesTV.setText(likes);
-        favoritesTV.setText(favorites);
+        if(savedHitInformation == null){
+            Log.d("lol", "Hit informationnya null");
+            userTV.setText(user);
+            tagsTV.setText(tags);
+            viewsTV.setText(views);
+            likesTV.setText(likes);
+            favoritesTV.setText(favorites);
 
-        StartGLidePrecess(widthScreen);
+            StartGLidePrecess(widthScreen);
+            setFragmentListener(view);
+        }else{
+            LoadFromSavedInfo();
+        }
 
-        setFragmentListener(view);
-        setSaveImageButtonListener(saveImageButton);
 
         return  view;
     }
@@ -157,6 +186,8 @@ public class HitFragment extends Fragment {
                             loadingImagePB.setVisibility(View.GONE);
                             imageURLBitmap = bitmap;
                             imageURLIV.setImageBitmap(bitmap);
+                            saveImageButton.setAlpha(1);
+                            setSaveImageButtonListener();
                         }
                     });
         }
@@ -165,11 +196,6 @@ public class HitFragment extends Fragment {
 
             Glide.with(getActivity())
                     .load(userImageURL)
-                    .dontAnimate()
-                    .into(userIV);
-
-            Glide.with(getActivity())
-                    .load(webformatURL)
                     .asBitmap()
                     .dontAnimate()
                     .into(new SimpleTarget<Bitmap>(widthScreen, widthScreen) {
@@ -184,6 +210,21 @@ public class HitFragment extends Fragment {
 
     }
 
+    private void LoadFromSavedInfo(){
+        saveImageButton.setText("Download");
+        setDownloadImageButtonListener();
+        loadingImagePB.setVisibility(View.GONE);
+        userTV.setText(savedHitInformation.getSavedHit().getUser());
+        tagsTV.setText(savedHitInformation.getSavedHit().getTags());
+        viewsTV.setText(savedHitInformation.getSavedHit().getViews());
+        likesTV.setText(savedHitInformation.getSavedHit().getLikes());
+        favoritesTV.setText(savedHitInformation.getSavedHit().getFavorites());
+        imageURLIV.setImageBitmap(savedHitInformation.getImageURLIV());
+        userIV.setImageBitmap(savedHitInformation.getUserIV());
+        saveImageButton.setAlpha(1);
+
+    }
+
     private void setFragmentListener(View view){
 
         view.setOnClickListener(new View.OnClickListener() {
@@ -195,9 +236,9 @@ public class HitFragment extends Fragment {
 
     }
 
-    private void setSaveImageButtonListener(Button button){
+    private void setSaveImageButtonListener(){
 
-        button.setOnClickListener(new View.OnClickListener() {
+        saveImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getContext(),"Saved", Toast.LENGTH_LONG).show();
@@ -208,11 +249,24 @@ public class HitFragment extends Fragment {
 
     }
 
+    private void setDownloadImageButtonListener(){
+
+        saveImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new DownloadAsyncTask().execute();
+            }
+        });
+
+    }
+
     public void onSaveButtonPressed(Bitmap savedImageURL, Bitmap savedUserImage) {
+
         if (mListener != null) {
             SavedHitInformation savedHitInformation = new SavedHitInformation(hit, savedImageURL, imagePreviewBitmap ,savedUserImage);
             mListener.OnSaveButtonClicked(savedHitInformation);
         }
+
     }
 
     @Override
@@ -232,6 +286,45 @@ public class HitFragment extends Fragment {
         mListener = null;
     }
 
+
+    private void SaveImageToSDCard(){
+
+        Bitmap bitmap = savedHitInformation.getImageURLIV();
+
+        FileOutputStream outStream = null;
+        File sdCard = Environment.getExternalStorageDirectory();
+        File dir = new File(sdCard.getAbsolutePath() + "/MyBonusAppImage");
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
+        String fileName = String.format("%d.jpg", System.currentTimeMillis());
+        File outFile = new File(dir, fileName);
+
+        try {
+            outStream = new FileOutputStream(outFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+            outStream.flush();
+            outStream.close();
+        }catch(Exception e){
+            Toast.makeText(getContext(),"Download failed", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+            Log.d("lol","download failed "+ e );
+        }
+    }
+
+    class DownloadAsyncTask extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            SaveImageToSDCard();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Toast.makeText(getContext(),"Download finished",Toast.LENGTH_LONG).show();
+        }
+    }
 
     public int getScreenWidth() {
         return Resources.getSystem().getDisplayMetrics().widthPixels;

@@ -7,12 +7,10 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -20,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
@@ -63,9 +60,6 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
         this.arsHitRight = new ArrayList<>();
         setArrayHitFromSavedInform();
 
-        for(int i = 0 ; i< savedHitInformations.size() ; i++){
-            Log.d("lol","isi savedInformation ArrayListnya : " + savedHitInformations.get(i).getImagePreview().toString());
-        }
 
         Log.d("lol","panjang savedHitInformation : " + savedHitInformations.size());
         inflater = LayoutInflater.from(context);
@@ -103,6 +97,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
     private void PutImageToViewHolder(final MyViewHolder holder, int position){
 
+        int screenWidth = ScreenWidth();
 
         if(savedHitInformations == null){
             Log.d("lol","Masuk if");
@@ -114,7 +109,6 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             String url1 = currentLeft.getPreviewURL();
             String url2 = currentRight.getPreviewURL();
 
-            int screenWidth = ScreenWidth();
 
             if (url1 != null && !url1.equals("")) {
 
@@ -151,7 +145,27 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             if(position < arsHitLeft.size()){
                 SavedHitInformation currentLeft = (SavedHitInformation) arsHitLeft.get(position);
                 holder.hitLeft = currentLeft.getSavedHit();
-                holder.imgLeft.setImageBitmap(currentLeft.getImagePreview());
+
+                if(currentLeft.getImagePreview() == null){
+
+                    Glide.with(context)
+                            .load(currentLeft.getSavedHit().getPreviewURL())
+                            .asBitmap()
+                            .dontAnimate()
+                            .into(new SimpleTarget<Bitmap>(screenWidth / 2, screenWidth / 2) {
+                                @Override
+                                public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
+                                    // Do something with bitmap here.
+                                    Log.d("lol","Left");
+                                    holder.imgLeft.setImageBitmap(bitmap);
+                                }
+                            });
+
+                }else{
+                    holder.imgLeft.setImageBitmap(currentLeft.getImagePreview());
+                }
+
+                holder.savedHitInformation = currentLeft;
             }else{
                 holder.imgLeft.setBackgroundColor(Color.parseColor("#1A1A1A"));
                 holder.imgLeft.invalidate();
@@ -160,7 +174,25 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             if(position < arsHitRight.size()) {
                 SavedHitInformation currentRight = (SavedHitInformation) arsHitRight.get(position);
                 holder.hitRight = currentRight.getSavedHit();
-                holder.imgRight.setImageBitmap(currentRight.getImagePreview());
+
+                if(currentRight.getImagePreview() == null) {
+                    Glide.with(context)
+                            .load(currentRight.getSavedHit().getPreviewURL())
+                            .asBitmap()
+                            .dontAnimate()
+                            .into(new SimpleTarget<Bitmap>(screenWidth / 2, screenWidth / 2) {
+                                @Override
+                                public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
+                                    // Do something with bitmap here.
+                                    Log.d("lol","Right");
+                                    holder.imgRight.setImageBitmap(bitmap);
+                                }
+                            });
+                }else{
+                    holder.imgRight.setImageBitmap(currentRight.getImagePreview());
+                }
+
+                holder.savedHitInformation = currentRight;
             }else{
                 holder.imgRight.setBackgroundColor(Color.parseColor("#1A1A1A"));
                 holder.imgRight.invalidate();
@@ -210,7 +242,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
     class MyViewHolder extends RecyclerView.ViewHolder{
 
-
+        SavedHitInformation savedHitInformation = null;
         ImageView imgLeft;
         ImageView imgRight;
         Hit hitLeft;
@@ -241,7 +273,6 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
                 }
             });
 
-
         }
 
         private void hideSearchButton(){
@@ -253,7 +284,22 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
         private void ShowDialogLeft(){
 
-            HitFragment hitFragment = HitFragment.newInstance(hitLeft,((BitmapDrawable)imgLeft.getDrawable()).getBitmap());
+            HitFragment hitFragment;
+
+            if(savedHitInformation == null) {
+                if( imgLeft.getDrawable() != null){
+                    hitFragment = HitFragment.newInstance(hitLeft, ((BitmapDrawable) imgLeft.getDrawable()).getBitmap());
+                }else{
+                    hitFragment = HitFragment.newInstance(hitLeft, null);
+                }
+            }else{
+
+                if(savedHitInformation.getImagePreview() == null){
+                    savedHitInformation.setImagePreview(((BitmapDrawable) imgLeft.getDrawable()).getBitmap());
+                }
+                hitFragment = HitFragment.newInstace(savedHitInformation);
+            }
+
             FragmentTransaction ft = fragmentManager.beginTransaction();
             ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
             ft.replace(R.id.containerFragment, hitFragment);
@@ -263,8 +309,20 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
         }
 
         private void ShowDialogRight(){
+            HitFragment hitFragment;
 
-            HitFragment hitFragment = HitFragment.newInstance(hitRight, ((BitmapDrawable)imgRight.getDrawable()).getBitmap());
+            if(savedHitInformation == null) {
+                if( imgRight.getDrawable() != null) {
+                    hitFragment = HitFragment.newInstance(hitRight, ((BitmapDrawable) imgRight.getDrawable()).getBitmap());
+                }else{
+                    hitFragment = HitFragment.newInstance(hitRight, null);
+                }
+            }else{
+                if(savedHitInformation.getImagePreview() == null){
+                    savedHitInformation.setImagePreview(((BitmapDrawable) imgRight.getDrawable()).getBitmap());
+                }
+                hitFragment = HitFragment.newInstace(savedHitInformation);
+            }
             FragmentTransaction ft = fragmentManager.beginTransaction();
             ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
             ft.replace(R.id.containerFragment, hitFragment);

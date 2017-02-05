@@ -200,14 +200,18 @@
 
         </LinearLayout>
 
+
+
         <Button
             android:layout_width="200dp"
             android:id="@+id/saveImageButton"
             android:layout_gravity="center_horizontal"
             android:layout_height="wrap_content"
             android:text="Save"
-            android:background="@color/colorLight"
+            android:background="@drawable/hover_button"
             android:layout_weight="1.1"
+            android:alpha="0.2"
+            android:textColor="@color/colorLight"
             />
 
     </LinearLayout>

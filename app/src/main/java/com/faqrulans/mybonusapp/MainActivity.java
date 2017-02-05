@@ -1,6 +1,8 @@
 package com.faqrulans.mybonusapp;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -15,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -26,11 +27,15 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements HitFragment.OnSaveButtonClickedListener {
 
@@ -45,12 +50,16 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
     boolean savedImagePageOpened;
 
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         InitVar();
+
         loadingPG.setProgress(0);
         loadingPG.setVisibility(View.VISIBLE);
         StartConnection("flower red");
@@ -269,10 +278,11 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
             getSupportFragmentManager().popBackStack();
         }
     }
-
     @Override
     public void OnSaveButtonClicked(SavedHitInformation savedHitInformation) {
         savedHitInformations.add(savedHitInformation);
+
+
         //Toast.makeText(getApplicationContext(), this.savedHitInformations.size() + " Saved Image", Toast.LENGTH_LONG).show();
     }
 

@@ -32,6 +32,10 @@ public class SavedHitInformation implements Parcelable {
         return imagePreview;
     }
 
+    public void setImagePreview(Bitmap imagePreview) {
+        this.imagePreview = imagePreview;
+    }
+
     public Bitmap getImageURLIV() {
         return imageURLIV;
     }

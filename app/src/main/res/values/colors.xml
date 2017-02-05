@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="blackLight">#1a1a1a</color>
     <color name="colorLight">#e6e6e6</color>
+    <color name="button_pressed">#ff8a00</color>
+    <color name="button_focused">#ff8a00</color>
+    <color name="button_default">#1c76bb</color>
 </resources>
