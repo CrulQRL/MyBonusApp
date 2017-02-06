@@ -38,9 +38,11 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
     private ArrayList<SavedHitInformation> savedHitInformations ;
     private List arsHitLeft;
     private List arsHitRight;
+    private boolean inSavedImagePage;
 
 
     public RecyclerViewAdapt(List<Hit> arsHit, Activity activity, FragmentManager fragmentManager){
+        inSavedImagePage = false;
         this.context = activity.getApplicationContext();
         this.fragmentManager = fragmentManager;
         this.activity = activity;
@@ -52,9 +54,15 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
     }
 
     public RecyclerViewAdapt(Activity activity, FragmentManager fragmentManager, ArrayList<SavedHitInformation> savedHitInformations){
+        inSavedImagePage = true;
         this.context = activity.getApplicationContext();
         this.fragmentManager = fragmentManager;
         this.activity = activity;
+
+        for(int i = 0 ; i < savedHitInformations.size() ; i++){
+            Log.d("lol","iterasi isi array savedHitInformation.. : " + savedHitInformations.get(i).getSavedHit().getViews());
+        }
+
         this.savedHitInformations = savedHitInformations;
         this.arsHitLeft = new ArrayList<>();
         this.arsHitRight = new ArrayList<>();
@@ -99,7 +107,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
         int screenWidth = ScreenWidth();
 
-        if(savedHitInformations == null){
+        if(inSavedImagePage == false){
             Log.d("lol","Masuk if");
             Hit currentLeft = (Hit) arsHitLeft.get(position);
             Hit currentRight = (Hit) arsHitRight.get(position);
@@ -141,7 +149,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             }
 
         }else {
-
+            //Log.d("lol", "position : " + position + ", arsHitLeft : Sizenya " + arsHitLeft.size() +" Viewnya "+ ((SavedHitInformation)arsHitLeft.get(0)).getSavedHit().getViews());
             if(position < arsHitLeft.size()){
                 SavedHitInformation currentLeft = (SavedHitInformation) arsHitLeft.get(position);
                 holder.hitLeft = currentLeft.getSavedHit();
@@ -165,11 +173,13 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
                     holder.imgLeft.setImageBitmap(currentLeft.getImagePreview());
                 }
 
-                holder.savedHitInformation = currentLeft;
+                holder.savedHitInformationLeft = currentLeft;
             }else{
                 holder.imgLeft.setBackgroundColor(Color.parseColor("#1A1A1A"));
                 holder.imgLeft.invalidate();
             }
+
+            //Log.d("lol", "position : " + position + ", arsHitRight : Sizenya " + arsHitRight.size()+" Viewnya " + ((SavedHitInformation)arsHitRight.get(0)).getSavedHit().getViews());
 
             if(position < arsHitRight.size()) {
                 SavedHitInformation currentRight = (SavedHitInformation) arsHitRight.get(position);
@@ -192,7 +202,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
                     holder.imgRight.setImageBitmap(currentRight.getImagePreview());
                 }
 
-                holder.savedHitInformation = currentRight;
+                holder.savedHitInformationRight = currentRight;
             }else{
                 holder.imgRight.setBackgroundColor(Color.parseColor("#1A1A1A"));
                 holder.imgRight.invalidate();
@@ -242,7 +252,8 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
     class MyViewHolder extends RecyclerView.ViewHolder{
 
-        SavedHitInformation savedHitInformation = null;
+        SavedHitInformation savedHitInformationLeft = null;
+        SavedHitInformation savedHitInformationRight = null;
         ImageView imgLeft;
         ImageView imgRight;
         Hit hitLeft;
@@ -286,49 +297,60 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
             HitFragment hitFragment;
 
-            if(savedHitInformation == null) {
+            if(inSavedImagePage == false) {
                 if( imgLeft.getDrawable() != null){
                     hitFragment = HitFragment.newInstance(hitLeft, ((BitmapDrawable) imgLeft.getDrawable()).getBitmap());
                 }else{
                     hitFragment = HitFragment.newInstance(hitLeft, null);
                 }
+                ReplaceWithHitDialog(hitFragment);
             }else{
+                if(savedHitInformationLeft != null) {
+                    if(savedHitInformationLeft.getImagePreview() == null){
+                        savedHitInformationLeft.setImagePreview(((BitmapDrawable) imgLeft.getDrawable()).getBitmap());
+                    }
+                    //Log.d("lol","HitLeftnya " + hitLeft.getViews());
+                    //Log.d("lol","--->>> ShowLeft, " + savedHitInformationLeft.getSavedHit().getViews());
 
-                if(savedHitInformation.getImagePreview() == null){
-                    savedHitInformation.setImagePreview(((BitmapDrawable) imgLeft.getDrawable()).getBitmap());
+                    hitFragment = HitFragment.newInstace(savedHitInformationLeft);
+                    ReplaceWithHitDialog(hitFragment);
                 }
-                hitFragment = HitFragment.newInstace(savedHitInformation);
             }
 
-            FragmentTransaction ft = fragmentManager.beginTransaction();
-            ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
-            ft.replace(R.id.containerFragment, hitFragment);
-            ft.addToBackStack(null);
-            ft.commit();
+
 
         }
 
         private void ShowDialogRight(){
             HitFragment hitFragment;
 
-            if(savedHitInformation == null) {
+            if(inSavedImagePage == false) {
                 if( imgRight.getDrawable() != null) {
                     hitFragment = HitFragment.newInstance(hitRight, ((BitmapDrawable) imgRight.getDrawable()).getBitmap());
                 }else{
                     hitFragment = HitFragment.newInstance(hitRight, null);
                 }
+                ReplaceWithHitDialog(hitFragment);
             }else{
-                if(savedHitInformation.getImagePreview() == null){
-                    savedHitInformation.setImagePreview(((BitmapDrawable) imgRight.getDrawable()).getBitmap());
+                if(savedHitInformationRight != null){
+                    if(savedHitInformationRight.getImagePreview() == null){
+                        savedHitInformationRight.setImagePreview(((BitmapDrawable) imgRight.getDrawable()).getBitmap());
+                    }
+                    //Log.d("lol","ShowRight, " + savedHitInformationRight.getSavedHit().getViews());
+                    hitFragment = HitFragment.newInstace(savedHitInformationRight);
+                    ReplaceWithHitDialog(hitFragment);
                 }
-                hitFragment = HitFragment.newInstace(savedHitInformation);
             }
+
+
+        }
+
+        private void ReplaceWithHitDialog(HitFragment hitFragment){
             FragmentTransaction ft = fragmentManager.beginTransaction();
             ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
             ft.replace(R.id.containerFragment, hitFragment);
             ft.addToBackStack(null);
             ft.commit();
-
         }
 
         private void HideKeyboard(){

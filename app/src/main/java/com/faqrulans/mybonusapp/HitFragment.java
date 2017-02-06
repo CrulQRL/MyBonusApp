@@ -241,7 +241,7 @@ public class HitFragment extends Fragment {
         saveImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(),"Saved", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(),"Saved", Toast.LENGTH_SHORT).show();
                 onSaveButtonPressed(imageURLBitmap, imageUserBitmap);
 
             }
@@ -322,7 +322,7 @@ public class HitFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            Toast.makeText(getContext(),"Download finished",Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(),"Download finished",Toast.LENGTH_SHORT).show();
         }
     }
 
