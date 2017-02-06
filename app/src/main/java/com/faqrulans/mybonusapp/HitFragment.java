@@ -1,14 +1,22 @@
 package com.faqrulans.mybonusapp;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +36,8 @@ import com.bumptech.glide.request.target.Target;
 
 import java.io.File;
 import java.io.FileOutputStream;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 
 public class HitFragment extends Fragment {
@@ -127,6 +137,7 @@ public class HitFragment extends Fragment {
         likesTV = (TextView) view.findViewById(R.id.likesTV);
         favoritesTV = (TextView) view.findViewById(R.id.favoritesTV);
         saveImageButton = (Button) view.findViewById(R.id.saveImageButton);
+        saveImageButton.setClickable(false);
         loadingImagePB = (ProgressBar) view.findViewById(R.id.loadingImagePB);
 
         int widthScreen = getScreenWidth();
@@ -188,6 +199,7 @@ public class HitFragment extends Fragment {
                             imageURLIV.setImageBitmap(bitmap);
                             saveImageButton.setAlpha(1);
                             setSaveImageButtonListener();
+                            saveImageButton.setClickable(true);
                         }
                     });
         }
@@ -213,6 +225,7 @@ public class HitFragment extends Fragment {
     private void LoadFromSavedInfo(){
         saveImageButton.setText("Download");
         setDownloadImageButtonListener();
+        saveImageButton.setClickable(true);
         loadingImagePB.setVisibility(View.GONE);
         userTV.setText(savedHitInformation.getSavedHit().getUser());
         tagsTV.setText(savedHitInformation.getSavedHit().getTags());
@@ -254,11 +267,12 @@ public class HitFragment extends Fragment {
         saveImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new DownloadAsyncTask().execute();
+                ShowAlertDialog();
             }
         });
 
     }
+
 
     public void onSaveButtonPressed(Bitmap savedImageURL, Bitmap savedUserImage) {
 
@@ -287,7 +301,7 @@ public class HitFragment extends Fragment {
     }
 
 
-    private void SaveImageToSDCard(){
+    private File SaveImageToSDCard(){
 
         Bitmap bitmap = savedHitInformation.getImageURLIV();
 
@@ -305,29 +319,71 @@ public class HitFragment extends Fragment {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
             outStream.flush();
             outStream.close();
+            return outFile;
         }catch(Exception e){
             Toast.makeText(getContext(),"Download failed", Toast.LENGTH_LONG).show();
             e.printStackTrace();
             Log.d("lol","download failed "+ e );
+            return null;
         }
     }
 
-    class DownloadAsyncTask extends AsyncTask<Void,Void,Void>{
+    class DownloadAsyncTask extends AsyncTask<Void,Void,File>{
 
         @Override
-        protected Void doInBackground(Void... params) {
-            SaveImageToSDCard();
-            return null;
+        protected File doInBackground(Void... params) {
+            return SaveImageToSDCard();
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            Toast.makeText(getContext(),"Download finished",Toast.LENGTH_SHORT).show();
+        protected void onPostExecute(File file) {
+            Toast.makeText(getContext(),"Image has been saved to internal storage",Toast.LENGTH_SHORT).show();
+            ShowNotification(file);
         }
     }
 
     public int getScreenWidth() {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
+    }
+
+    private void ShowAlertDialog(){
+        new AlertDialog.Builder(getContext())
+                .setTitle("Download this Image?")
+                .setMessage("Image will be saved in \"YourInternalStorage/MyBonusAppImage\" folder")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        new DownloadAsyncTask().execute();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    private void ShowNotification(File file){
+
+        Intent intent = new Intent();
+        intent.setAction(android.content.Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(file), "image/*");
+
+        PendingIntent pIntent = PendingIntent.getActivity(getContext(), 0, intent, 0);
+
+        Notification noti = new NotificationCompat.Builder(getContext())
+                .setContentTitle("Download completed")
+                .setContentText("" + file.getName())
+                .setSmallIcon(R.drawable.hover_button)
+                .setContentIntent(pIntent).build();
+
+        //noti.vibrate = new long[] { 1000 , 1000, 1000};
+        noti.defaults |= Notification.DEFAULT_VIBRATE;
+
+        noti.flags |= Notification.FLAG_AUTO_CANCEL;
+        NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(0, noti);
     }
 
     public interface OnSaveButtonClickedListener {
