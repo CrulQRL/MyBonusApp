@@ -66,6 +66,7 @@ public class HitFragment extends Fragment {
     private Bitmap imageURLBitmap;
     private Bitmap imageUserBitmap;
     private SavedHitInformation savedHitInformation;
+    private int widthScreen;
 
 
     public static HitFragment newInstance(Hit hit, Bitmap previewImageBitmap){
@@ -140,7 +141,7 @@ public class HitFragment extends Fragment {
         saveImageButton.setClickable(false);
         loadingImagePB = (ProgressBar) view.findViewById(R.id.loadingImagePB);
 
-        int widthScreen = getScreenWidth();
+        widthScreen = getScreenWidth();
         int newButtonWidth = widthScreen/3;
         saveImageButton.getLayoutParams().width = newButtonWidth + 30;
         imageURLIV.requestLayout();
@@ -153,89 +154,106 @@ public class HitFragment extends Fragment {
             likesTV.setText(likes);
             favoritesTV.setText(favorites);
 
-            StartGLidePrecess(widthScreen);
+            StartGLidePrecess();
             setFragmentListener(view);
         }else{
             LoadFromSavedInfo();
         }
 
-
         return  view;
     }
 
 
-    private void StartGLidePrecess(int widthScreen){
+    private void StartGLidePrecess(){
 
         if(webformatURL != null && !webformatURL.equals("")) {
-
-            /**
-            Glide.with(getActivity())
-                    .load(webformatURL)
-                    .override(widthScreen, widthScreen)
-                    .listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            loadingImagePB.setVisibility(View.GONE);
-                            return false;
-                        }
-                    })
-                    .into(imageURLIV)
-            ;**/
-
-            Glide.with(getActivity())
-                    .load(webformatURL)
-                    .asBitmap()
-                    .into(new SimpleTarget<Bitmap>(widthScreen, widthScreen) {
-                        @Override
-                        public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
-                            // Do something with bitmap here.
-                            loadingImagePB.setVisibility(View.GONE);
-                            imageURLBitmap = bitmap;
-                            imageURLIV.setImageBitmap(bitmap);
-                            saveImageButton.setAlpha(1);
-                            setSaveImageButtonListener();
-                            saveImageButton.setClickable(true);
-                        }
-                    });
+            StartGlideConnectionImageURL(webformatURL);
         }
 
         if(userImageURL != null && !userImageURL.equals("")) {
-
-            Glide.with(getActivity())
-                    .load(userImageURL)
-                    .asBitmap()
-                    .dontAnimate()
-                    .into(new SimpleTarget<Bitmap>(widthScreen, widthScreen) {
-                        @Override
-                        public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
-                            // Do something with bitmap here.
-                            imageUserBitmap = bitmap;
-                            userIV.setImageBitmap(bitmap);
-                        }
-                    });
+            StartGlideConnectionUserImage(userImageURL);
         }
+
 
     }
 
     private void LoadFromSavedInfo(){
         saveImageButton.setText("Download");
-        setDownloadImageButtonListener();
-        saveImageButton.setClickable(true);
-        loadingImagePB.setVisibility(View.GONE);
         userTV.setText(savedHitInformation.getSavedHit().getUser());
         tagsTV.setText(savedHitInformation.getSavedHit().getTags());
         viewsTV.setText(savedHitInformation.getSavedHit().getViews());
         likesTV.setText(savedHitInformation.getSavedHit().getLikes());
         favoritesTV.setText(savedHitInformation.getSavedHit().getFavorites());
-        imageURLIV.setImageBitmap(savedHitInformation.getImageURLIV());
-        userIV.setImageBitmap(savedHitInformation.getUserIV());
-        saveImageButton.setAlpha(1);
+        if(savedHitInformation.getImageURLIV() == null){
+            Log.d("lol","getImageURLnya null");
+            StartGlideConnectionImageURL(savedHitInformation.getSavedHit().getWebformatURL());
 
+        }else {
+            Log.d("lol","getImageURLnya enggak null");
+            imageURLBitmap = savedHitInformation.getImageURLIV();
+            imageURLIV.setImageBitmap(savedHitInformation.getImageURLIV());
+            LoadingFinished();
+            setDownloadImageButtonListener();
+        }
+
+        if(savedHitInformation.getUserIV() == null){
+            Log.d("lol","getUsernya null");
+            StartGlideConnectionUserImage(savedHitInformation.getSavedHit().getUserImageURL());
+        }else{
+            Log.d("lol","getUsernya enggak  null");
+            imageUserBitmap = savedHitInformation.getUserIV();
+            userIV.setImageBitmap(savedHitInformation.getUserIV());
+        }
+
+    }
+
+    private void StartGlideConnectionImageURL(String url){
+        Glide.with(getActivity())
+                .load(url)
+                .asBitmap()
+                .dontAnimate()
+                .into(new SimpleTarget<Bitmap>(widthScreen, widthScreen) {
+                    @Override
+                    public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
+                        // Do something with bitmap here.
+                        imageURLBitmap = bitmap;
+                        imageURLIV.setImageBitmap(bitmap);
+                        if(savedHitInformation == null){
+                            setSaveImageButtonListener();
+                        }else{
+                            setDownloadImageButtonListener();
+                        }
+                        LoadingFinished();
+
+                    }
+                });
+    }
+
+    private void StartGlideConnectionUserImage(String url){
+        Glide.with(getActivity())
+                .load(url)
+                .asBitmap()
+                .dontAnimate()
+                .into(new SimpleTarget<Bitmap>(widthScreen, widthScreen) {
+                    @Override
+                    public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
+                        // Do something with bitmap here.
+                        imageUserBitmap = bitmap;
+                        userIV.setImageBitmap(bitmap);
+                        if(savedHitInformation == null){
+                            setSaveImageButtonListener();
+                        }else{
+                            setDownloadImageButtonListener();
+                        }
+
+                    }
+                });
+    }
+
+    private void LoadingFinished(){
+        saveImageButton.setClickable(true);
+        loadingImagePB.setVisibility(View.GONE);
+        saveImageButton.setAlpha(1);
     }
 
     private void setFragmentListener(View view){
@@ -303,7 +321,7 @@ public class HitFragment extends Fragment {
 
     private File SaveImageToSDCard(){
 
-        Bitmap bitmap = savedHitInformation.getImageURLIV();
+        Bitmap bitmap = imageURLBitmap;
 
         FileOutputStream outStream = null;
         File sdCard = Environment.getExternalStorageDirectory();
@@ -321,7 +339,6 @@ public class HitFragment extends Fragment {
             outStream.close();
             return outFile;
         }catch(Exception e){
-            Toast.makeText(getContext(),"Download failed", Toast.LENGTH_LONG).show();
             e.printStackTrace();
             Log.d("lol","download failed "+ e );
             return null;
@@ -337,8 +354,12 @@ public class HitFragment extends Fragment {
 
         @Override
         protected void onPostExecute(File file) {
-            Toast.makeText(getContext(),"Image has been saved to internal storage",Toast.LENGTH_SHORT).show();
-            ShowNotification(file);
+            if(file == null){
+                Toast.makeText(getContext(),"Download failed, somethings wrong", Toast.LENGTH_LONG).show();
+            }else {
+                Toast.makeText(getContext(), "Image has been saved to internal storage", Toast.LENGTH_SHORT).show();
+                ShowNotification(file);
+            }
         }
     }
 
@@ -378,7 +399,6 @@ public class HitFragment extends Fragment {
                 .setSmallIcon(R.drawable.hover_button)
                 .setContentIntent(pIntent).build();
 
-        //noti.vibrate = new long[] { 1000 , 1000, 1000};
         noti.defaults |= Notification.DEFAULT_VIBRATE;
 
         noti.flags |= Notification.FLAG_AUTO_CANCEL;
