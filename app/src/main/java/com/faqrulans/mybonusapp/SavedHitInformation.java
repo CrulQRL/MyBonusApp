@@ -15,11 +15,13 @@ import java.util.ArrayList;
 public class SavedHitInformation implements Parcelable {
 
 
+
     private Hit savedHit;
     private Bitmap imagePreview;
     private Bitmap imageURLIV;
     private Bitmap userIV;
 
+    public SavedHitInformation(){}
 
     public SavedHitInformation(Hit savedHit, Bitmap imageURLIV, Bitmap imagePreview, Bitmap userIV) {
         this.savedHit = savedHit;
@@ -47,6 +49,10 @@ public class SavedHitInformation implements Parcelable {
     public Hit getSavedHit() {
 
         return savedHit;
+    }
+
+    public void setSavedHit(Hit savedHit) {
+        this.savedHit = savedHit;
     }
 
     protected SavedHitInformation(Parcel in) {

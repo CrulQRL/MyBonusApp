@@ -39,12 +39,15 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements HitFragment.OnSaveButtonClickedListener {
 
+    DatabaseHandler hitDBHandler;
     ProgressBar loadingPG;
     MenuItem searchItem;
     RecyclerView recyclerView;
     RecyclerViewAdapt recyclerViewAdapt;
     ArrayList<Hit> arsHit ;
     ArrayList<SavedHitInformation> savedHitInformations;
+    ArrayList<SavedHitInformation> savedTemp;
+    ArrayList<Hit> awk;
     String frontURL;
     String backURL;
     boolean savedImagePageOpened;
@@ -207,10 +210,14 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
 
 
     private void InitVar(){
+        hitDBHandler = new DatabaseHandler(this,null,null,1);
         loadingPG = (ProgressBar) findViewById(R.id.loadingPG);
         recyclerView = (RecyclerView) findViewById(R.id.imageRV);
         arsHit = new ArrayList<>();
+        savedTemp = new ArrayList<>();
         savedHitInformations = new ArrayList<>();
+        awk = new ArrayList<>();
+        LoadHitFromDatabase();
         frontURL = "https://pixabay.com/api/?key=4403161-ec08857d06dd86d0b4023a0e8&q=";
         backURL = "&image_type=photo&pretty=true";
     }
@@ -218,6 +225,8 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
     private void ShowSavedImagePage(){
 
         if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+
+            //AddToDatabse();
             savedImagePageOpened = true;
             SavedImageFragment savedImagePage = SavedImageFragment.newInstance(savedHitInformations);
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -226,10 +235,30 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
             ft.addToBackStack(null);
             ft.commit();
             invalidateOptionsMenu();
+
+
         }else{
             Log.d("lol","wadkakwdaw");
         }
 
+    }
+
+    private void AddToDatabse(){
+        Log.d("lol","panjang savedTemp : " + savedTemp.size());
+        if(savedTemp.size() > 0) {
+            Log.d("lol","masuk AddDatabase");
+            hitDBHandler.addHitFromArrayList(savedTemp);
+            savedTemp.clear();
+        }else{
+            Log.d("lol","gak masuk AddDatabase");
+        }
+    }
+
+
+    private void LoadHitFromDatabase(){
+        //awk = hitDBHandler.DatabaseTableToArrList(awk);
+        savedHitInformations = hitDBHandler.LoadFromDatabase(savedHitInformations);
+        Log.d("lol","panjang awk : " + awk.size());
     }
 
     @Override
@@ -281,9 +310,7 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
     @Override
     public void OnSaveButtonClicked(SavedHitInformation savedHitInformation) {
         savedHitInformations.add(savedHitInformation);
-
-
-        //Toast.makeText(getApplicationContext(), this.savedHitInformations.size() + " Saved Image", Toast.LENGTH_LONG).show();
+        hitDBHandler.addHit(savedHitInformation.getSavedHit());
     }
 
 
