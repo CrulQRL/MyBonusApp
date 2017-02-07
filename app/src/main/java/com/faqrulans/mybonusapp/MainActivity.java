@@ -345,6 +345,8 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnBut
 
         loadingPG.setVisibility(View.GONE);
         backgroundView.setVisibility(View.GONE);
+        Toast.makeText(this,"Image Deleted", Toast.LENGTH_SHORT).show();
+
 
 
 

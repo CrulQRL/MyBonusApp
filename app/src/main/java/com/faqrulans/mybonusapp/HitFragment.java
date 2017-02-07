@@ -195,6 +195,7 @@ public class HitFragment extends Fragment {
     }
 
     private void LoadFromSavedInfo(){
+
         saveImageButton.setText("Download");
         userTV.setText(savedHitInformation.getSavedHit().getUser());
         tagsTV.setText(savedHitInformation.getSavedHit().getTags());
@@ -309,8 +310,9 @@ public class HitFragment extends Fragment {
         deleteImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(),"Delete", Toast.LENGTH_SHORT).show();
-                onDeleteButtonPressed();
+
+                ShowAlertDialog(1,"Delete this image?","Image will be deleted from your list");
+
             }
         });
 
@@ -321,7 +323,7 @@ public class HitFragment extends Fragment {
         saveImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ShowAlertDialog();
+                ShowAlertDialog(0,"Download this Image?","Image will be saved in \"YourInternalStorage/MyBonusAppImage\" folder");
             }
         });
 
@@ -411,13 +413,17 @@ public class HitFragment extends Fragment {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
-    private void ShowAlertDialog(){
+    private void ShowAlertDialog(final int processType, String title, String message){
         new AlertDialog.Builder(getContext())
-                .setTitle("Download this Image?")
-                .setMessage("Image will be saved in \"YourInternalStorage/MyBonusAppImage\" folder")
+                .setTitle(title)
+                .setMessage(message)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        new DownloadAsyncTask().execute();
+                        if(processType == 0){
+                            new DownloadAsyncTask().execute();
+                        }else if(processType == 1){
+                            onDeleteButtonPressed();
+                        }
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
