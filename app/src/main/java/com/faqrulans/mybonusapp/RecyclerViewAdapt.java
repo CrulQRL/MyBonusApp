@@ -272,6 +272,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
                 @Override
                 public void onClick(View v) {
                     hideSearchButton();
+                    hideSavedItemButton();
                     ShowDialogLeft();
                 }
             });
@@ -280,6 +281,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
                 @Override
                 public void onClick(View v) {
                     hideSearchButton();
+                    hideSavedItemButton();
                     ShowDialogRight();
                 }
             });
@@ -290,6 +292,13 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             if(activity.findViewById(R.id.action_search) != null){
                 HideKeyboard();
                 activity.findViewById(R.id.action_search).setVisibility(View.INVISIBLE);
+            }
+        }
+
+        private void hideSavedItemButton(){
+            if(activity.findViewById(R.id.savedItem) != null){
+                HideKeyboard();
+                activity.findViewById(R.id.savedItem).setVisibility(View.INVISIBLE);
             }
         }
 

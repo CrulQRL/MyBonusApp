@@ -138,7 +138,6 @@ public class HitFragment extends Fragment {
         likesTV = (TextView) view.findViewById(R.id.likesTV);
         favoritesTV = (TextView) view.findViewById(R.id.favoritesTV);
         saveImageButton = (Button) view.findViewById(R.id.saveImageButton);
-        saveImageButton.setClickable(false);
         loadingImagePB = (ProgressBar) view.findViewById(R.id.loadingImagePB);
 
         widthScreen = getScreenWidth();
@@ -251,7 +250,7 @@ public class HitFragment extends Fragment {
     }
 
     private void LoadingFinished(){
-        saveImageButton.setClickable(true);
+        saveImageButton.setEnabled(true);
         loadingImagePB.setVisibility(View.GONE);
         saveImageButton.setAlpha(1);
     }

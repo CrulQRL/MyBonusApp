@@ -137,12 +137,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 **/
 
-    /**
-    public void deleteInfoOrang(String nama){
+    public void deleteHit(String imageWebURL){
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE " + COLUMNN_NAMA + "=\"" + nama + "\";" );
+        db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE " + COLUMNN_WEB_FORMAT_URL + "=\"" + imageWebURL + "\";" );
         db.close();
-    }**/
+    }
 
     public Cursor getCursor(){
         SQLiteDatabase db = getWritableDatabase();

@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
     DatabaseHandler hitDBHandler;
     ProgressBar loadingPG;
     MenuItem searchItem;
+    Button savedImgaePageBT;
     RecyclerView recyclerView;
     RecyclerViewAdapt recyclerViewAdapt;
     ArrayList<Hit> arsHit ;
@@ -83,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
             MenuInflater inflater = getMenuInflater();
             getSupportActionBar().setTitle("MyBonusApp");
             inflater.inflate(R.menu.reload_button, menu);
+
+            //savedImgaePageBT = menu.findItem(R.id.savedItem);
             searchItem = menu.findItem(R.id.action_search);
             SearchView searchView = (SearchView) searchItem.getActionView();
 

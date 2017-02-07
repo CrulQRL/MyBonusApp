@@ -210,7 +210,9 @@
             android:text="Save"
             android:background="@drawable/hover_button"
             android:layout_weight="1.1"
-            android:alpha="0.2"
+            android:alpha="0.4"
+            android:enabled="false"
+            android:textStyle="bold"
             android:textColor="@color/colorLight"
             />
 
