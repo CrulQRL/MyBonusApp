@@ -41,6 +41,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
     private boolean inSavedImagePage;
 
 
+
     public RecyclerViewAdapt(List<Hit> arsHit, Activity activity, FragmentManager fragmentManager){
         inSavedImagePage = false;
         this.context = activity.getApplicationContext();
@@ -105,6 +106,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
     private void PutImageToViewHolder(final MyViewHolder holder, int position){
 
+
         int screenWidth = ScreenWidth();
 
         if(inSavedImagePage == false){
@@ -153,6 +155,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             if(position < arsHitLeft.size()){
                 SavedHitInformation currentLeft = (SavedHitInformation) arsHitLeft.get(position);
                 holder.hitLeft = currentLeft.getSavedHit();
+                holder.isLeftSide = true;
 
                 if(currentLeft.getImagePreview() == null){
 
@@ -184,6 +187,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             if(position < arsHitRight.size()) {
                 SavedHitInformation currentRight = (SavedHitInformation) arsHitRight.get(position);
                 holder.hitRight = currentRight.getSavedHit();
+                holder.isLeftSide = false;
 
                 if(currentRight.getImagePreview() == null) {
                     Glide.with(context)
@@ -258,6 +262,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
         ImageView imgRight;
         Hit hitLeft;
         Hit hitRight;
+        boolean isLeftSide;
 
 
         public MyViewHolder(View itemView) {
@@ -271,6 +276,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             imgLeft.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    HideKeyboard();
                     hideSearchButton();
                     hideSavedItemButton();
                     ShowDialogLeft();
@@ -280,6 +286,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             imgRight.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    HideKeyboard();
                     hideSearchButton();
                     hideSavedItemButton();
                     ShowDialogRight();
@@ -290,21 +297,21 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
         private void hideSearchButton(){
             if(activity.findViewById(R.id.action_search) != null){
-                HideKeyboard();
                 activity.findViewById(R.id.action_search).setVisibility(View.INVISIBLE);
             }
         }
 
         private void hideSavedItemButton(){
             if(activity.findViewById(R.id.savedItem) != null){
-                HideKeyboard();
                 activity.findViewById(R.id.savedItem).setVisibility(View.INVISIBLE);
             }
         }
 
         private void ShowDialogLeft(){
 
+
             HitFragment hitFragment;
+            isLeftSide = true;
 
             if(inSavedImagePage == false) {
                 if( imgLeft.getDrawable() != null){
@@ -318,10 +325,8 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
                     if(savedHitInformationLeft.getImagePreview() == null){
                         savedHitInformationLeft.setImagePreview(((BitmapDrawable) imgLeft.getDrawable()).getBitmap());
                     }
-                    //Log.d("lol","HitLeftnya " + hitLeft.getViews());
-                    //Log.d("lol","--->>> ShowLeft, " + savedHitInformationLeft.getSavedHit().getViews());
 
-                    hitFragment = HitFragment.newInstace(savedHitInformationLeft);
+                    hitFragment = HitFragment.newInstace(savedHitInformationLeft, getAdapterPosition(), isLeftSide);
                     ReplaceWithHitDialog(hitFragment);
                 }
             }
@@ -332,6 +337,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
 
         private void ShowDialogRight(){
             HitFragment hitFragment;
+            isLeftSide = false;
 
             if(inSavedImagePage == false) {
                 if( imgRight.getDrawable() != null) {
@@ -345,8 +351,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
                     if(savedHitInformationRight.getImagePreview() == null){
                         savedHitInformationRight.setImagePreview(((BitmapDrawable) imgRight.getDrawable()).getBitmap());
                     }
-                    //Log.d("lol","ShowRight, " + savedHitInformationRight.getSavedHit().getViews());
-                    hitFragment = HitFragment.newInstace(savedHitInformationRight);
+                    hitFragment = HitFragment.newInstace(savedHitInformationRight, getAdapterPosition(), isLeftSide);
                     ReplaceWithHitDialog(hitFragment);
                 }
             }
@@ -368,6 +373,7 @@ public class RecyclerViewAdapt extends RecyclerView.Adapter<RecyclerViewAdapt.My
             inputManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
 
         }
+
 
     }
 

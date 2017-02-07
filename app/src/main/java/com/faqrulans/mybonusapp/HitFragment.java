@@ -23,6 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,9 +52,10 @@ public class HitFragment extends Fragment {
     TextView likesTV;
     TextView favoritesTV;
     Button saveImageButton;
+    Button deleteImageButton;
     ProgressBar loadingImagePB;
 
-    private OnSaveButtonClickedListener mListener;
+    private OnButtonClickedListener mListener;
 
     private Hit hit;
     private String webformatURL;
@@ -67,6 +70,10 @@ public class HitFragment extends Fragment {
     private Bitmap imageUserBitmap;
     private SavedHitInformation savedHitInformation;
     private int widthScreen;
+    private int positionInRV;
+    private boolean isLeftSide;
+    boolean isInSavedImagePage = false;
+
 
 
     public static HitFragment newInstance(Hit hit, Bitmap previewImageBitmap){
@@ -88,12 +95,14 @@ public class HitFragment extends Fragment {
         return myDialogFragment;
     }
 
-    public static HitFragment newInstace(SavedHitInformation savedHitInformation){
+    public static HitFragment newInstace(SavedHitInformation savedHitInformation, int positionInRV, boolean isLeftSide){
 
         HitFragment myDialogFragment = new HitFragment();
         Bundle args = new Bundle();
 
         args.putParcelable("sHI",savedHitInformation);
+        args.putInt("position",positionInRV);
+        args.putBoolean("isLeftSide",isLeftSide);
 
         myDialogFragment.setArguments(args);
         return myDialogFragment;
@@ -118,6 +127,9 @@ public class HitFragment extends Fragment {
                 imagePreviewBitmap = getArguments().getParcelable("param9");
             }else{
                 savedHitInformation = getArguments().getParcelable("sHI");
+                isLeftSide = getArguments().getBoolean("isLeftSide");
+                positionInRV = getArguments().getInt("position");
+                isInSavedImagePage = true;
             }
 
         }
@@ -129,7 +141,7 @@ public class HitFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_hit, container, false);
 
-
+        widthScreen = getScreenWidth();
         imageURLIV = (ImageView) view.findViewById(R.id.imageURLTV);
         userIV = (ImageView) view.findViewById(R.id.userIV);
         userTV = (TextView) view.findViewById(R.id.userTV);
@@ -138,15 +150,19 @@ public class HitFragment extends Fragment {
         likesTV = (TextView) view.findViewById(R.id.likesTV);
         favoritesTV = (TextView) view.findViewById(R.id.favoritesTV);
         saveImageButton = (Button) view.findViewById(R.id.saveImageButton);
+        deleteImageButton = (Button) view.findViewById(R.id.deleteImageButton);
         loadingImagePB = (ProgressBar) view.findViewById(R.id.loadingImagePB);
 
-        widthScreen = getScreenWidth();
-        int newButtonWidth = widthScreen/3;
-        saveImageButton.getLayoutParams().width = newButtonWidth + 30;
-        imageURLIV.requestLayout();
+        //imageURLIV.requestLayout();
 
-        if(savedHitInformation == null){
-            Log.d("lol", "Hit informationnya null");
+        if(isInSavedImagePage == false){
+
+
+            deleteImageButton.setVisibility(View.GONE);
+            LayoutParams param = new LayoutParams(0, LayoutParams.WRAP_CONTENT, 2.0f);
+            param.setMargins(50, 0, 50, 0);
+            saveImageButton.setLayoutParams(param);
+
             userTV.setText(user);
             tagsTV.setText(tags);
             viewsTV.setText(views);
@@ -156,6 +172,8 @@ public class HitFragment extends Fragment {
             StartGLidePrecess();
             setFragmentListener(view);
         }else{
+            int newButtonWidth = widthScreen/2;
+            saveImageButton.getLayoutParams().width = newButtonWidth + 50;
             LoadFromSavedInfo();
         }
 
@@ -193,6 +211,7 @@ public class HitFragment extends Fragment {
             imageURLIV.setImageBitmap(savedHitInformation.getImageURLIV());
             LoadingFinished();
             setDownloadImageButtonListener();
+            setDeleteImageButtonListener();
         }
 
         if(savedHitInformation.getUserIV() == null){
@@ -217,10 +236,11 @@ public class HitFragment extends Fragment {
                         // Do something with bitmap here.
                         imageURLBitmap = bitmap;
                         imageURLIV.setImageBitmap(bitmap);
-                        if(savedHitInformation == null){
+                        if(isInSavedImagePage == false){
                             setSaveImageButtonListener();
                         }else{
                             setDownloadImageButtonListener();
+                            setDeleteImageButtonListener();
                         }
                         LoadingFinished();
 
@@ -239,10 +259,11 @@ public class HitFragment extends Fragment {
                         // Do something with bitmap here.
                         imageUserBitmap = bitmap;
                         userIV.setImageBitmap(bitmap);
-                        if(savedHitInformation == null){
+                        if(isInSavedImagePage == false){
                             setSaveImageButtonListener();
                         }else{
                             setDownloadImageButtonListener();
+                            setDeleteImageButtonListener();
                         }
 
                     }
@@ -250,9 +271,13 @@ public class HitFragment extends Fragment {
     }
 
     private void LoadingFinished(){
+
         saveImageButton.setEnabled(true);
         loadingImagePB.setVisibility(View.GONE);
         saveImageButton.setAlpha(1);
+        deleteImageButton.setEnabled(true);
+        deleteImageButton.setAlpha(1);
+
     }
 
     private void setFragmentListener(View view){
@@ -279,6 +304,18 @@ public class HitFragment extends Fragment {
 
     }
 
+    private void setDeleteImageButtonListener(){
+
+        deleteImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getContext(),"Delete", Toast.LENGTH_SHORT).show();
+                onDeleteButtonPressed();
+            }
+        });
+
+    }
+
     private void setDownloadImageButtonListener(){
 
         saveImageButton.setOnClickListener(new View.OnClickListener() {
@@ -300,11 +337,19 @@ public class HitFragment extends Fragment {
 
     }
 
+    public void onDeleteButtonPressed(){
+
+        if (mListener != null) {
+            mListener.OnDeleteButtonClicked(positionInRV, isLeftSide);
+        }
+
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnSaveButtonClickedListener) context;
+            mListener = (OnButtonClickedListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnSaveButtonClickedListener");
         }
@@ -405,8 +450,9 @@ public class HitFragment extends Fragment {
         notificationManager.notify(0, noti);
     }
 
-    public interface OnSaveButtonClickedListener {
+    public interface OnButtonClickedListener {
         public void OnSaveButtonClicked(SavedHitInformation savedHitInformation);
+        public void OnDeleteButtonClicked(int position, boolean isLeftSide);
     }
 
 

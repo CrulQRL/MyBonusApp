@@ -38,12 +38,13 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements HitFragment.OnSaveButtonClickedListener {
+public class MainActivity extends AppCompatActivity implements HitFragment.OnButtonClickedListener {
 
     DatabaseHandler hitDBHandler;
     ProgressBar loadingPG;
     MenuItem searchItem;
     Button savedImgaePageBT;
+    View backgroundView;
     RecyclerView recyclerView;
     RecyclerViewAdapt recyclerViewAdapt;
     ArrayList<Hit> arsHit ;
@@ -216,6 +217,7 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
     private void InitVar(){
         hitDBHandler = new DatabaseHandler(this,null,null,1);
         loadingPG = (ProgressBar) findViewById(R.id.loadingPG);
+        backgroundView = findViewById(R.id.backgroundView);
         recyclerView = (RecyclerView) findViewById(R.id.imageRV);
         arsHit = new ArrayList<>();
         savedTemp = new ArrayList<>();
@@ -231,13 +233,7 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
         if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
 
             //AddToDatabse();
-            savedImagePageOpened = true;
-            SavedImageFragment savedImagePage = SavedImageFragment.newInstance(savedHitInformations);
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
-            ft.replace(R.id.containerSavedFragment, savedImagePage);
-            ft.addToBackStack(null);
-            ft.commit();
+            RealoadSavedImagePage();
             invalidateOptionsMenu();
 
 
@@ -245,6 +241,16 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
             Log.d("lol","wadkakwdaw");
         }
 
+    }
+
+    private void RealoadSavedImagePage(){
+        savedImagePageOpened = true;
+        SavedImageFragment savedImagePage = SavedImageFragment.newInstance(savedHitInformations);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
+        ft.replace(R.id.containerSavedFragment, savedImagePage);
+        ft.addToBackStack(null);
+        ft.commit();
     }
 
     private void AddToDatabse(){
@@ -305,9 +311,11 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
 
     private void backButtonClicked(){
         if(getSupportFragmentManager().getBackStackEntryCount() == 1){
+            Log.d("lol","masuk sini");
             invalidateOptionsMenu();
             getSupportFragmentManager().popBackStack();
         }else if(getSupportFragmentManager().getBackStackEntryCount() == 2){
+            Log.d("lol","gak masuk situ");
             getSupportFragmentManager().popBackStack();
         }
     }
@@ -316,6 +324,44 @@ public class MainActivity extends AppCompatActivity implements HitFragment.OnSav
         savedHitInformations.add(savedHitInformation);
         hitDBHandler.addHit(savedHitInformation.getSavedHit());
     }
+
+    @Override
+    public void OnDeleteButtonClicked(int position, boolean isLeftSide) {
+        backgroundView.setVisibility(View.VISIBLE);
+        loadingPG.setProgress(0);
+        loadingPG.setVisibility(View.VISIBLE);
+
+        int deletedIndex = position * 2;
+        if(isLeftSide == false){
+            deletedIndex += 1;
+        }
+        hitDBHandler.deleteHit(savedHitInformations.get(deletedIndex).getSavedHit().getWebformatURL());
+        savedHitInformations.remove(deletedIndex);
+
+        getSupportFragmentManager().popBackStackImmediate();
+        getSupportFragmentManager().popBackStackImmediate();
+        invalidateOptionsMenu();
+        ShowSavedImagePage();
+
+        loadingPG.setVisibility(View.GONE);
+        backgroundView.setVisibility(View.GONE);
+
+
+
+        //ShowSavedImagePage();
+        /**
+        savedImagePageOpened = true;
+        SavedImageFragment savedImagePage = SavedImageFragment.newInstance(savedHitInformations);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.anim.fade_in,0,0,R.anim.fade_out);
+        ft.replace(R.id.containerSavedFragment, savedImagePage);
+        ft.addToBackStack(null);
+        ft.commit();
+        **/
+
+    }
+
+
 
 
 }
